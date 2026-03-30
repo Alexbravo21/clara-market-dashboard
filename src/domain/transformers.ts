@@ -3,6 +3,8 @@ import type { ICoinDetailView, ICoinRow } from './models';
 
 /**
  * Transforms a raw CoinGecko market API response into the clean ICoinRow domain model.
+ * @param raw - Raw market coin object from the CoinGecko API.
+ * @returns Flat ICoinRow domain object.
  */
 export function mapCoinMarketToRow(raw: ICoinMarket): ICoinRow {
   return {
@@ -20,6 +22,8 @@ export function mapCoinMarketToRow(raw: ICoinMarket): ICoinRow {
 
 /**
  * Transforms a raw CoinGecko detail API response into the clean ICoinDetailView domain model.
+ * @param raw - Raw coin detail object from the CoinGecko API.
+ * @returns Flat ICoinDetailView domain object with HTML stripped from description.
  */
 export function mapCoinDetailToView(raw: ICoinDetail): ICoinDetailView {
   return {

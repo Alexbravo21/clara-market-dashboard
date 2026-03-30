@@ -4,6 +4,10 @@ import type { IColumn } from '../ui/table';
 import { formatCompactUSD, formatUSD } from '../utils';
 import type { ICoinRow } from './models';
 
+/**
+ * Column definitions for the cryptocurrency market table.
+ * Each entry describes how to render and sort a single column of ICoinRow data.
+ */
 export const COIN_COLUMNS: IColumn<ICoinRow>[] = [
   {
     key: 'rank',

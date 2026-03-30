@@ -23,6 +23,8 @@ interface IUseTableResult<T> {
 /**
  * Composes useSorting and useFiltering to provide a unified table state hook.
  * Filtering is applied before sorting. UI-agnostic and fully generic.
+ * @param options - Table configuration including data, sort field, filter predicate, and optional comparator.
+ * @returns Processed data array plus sort/filter state and their respective handlers.
  */
 export function useTable<T>({
   data,

@@ -11,6 +11,7 @@ const MARKET_COINS_QUERY_KEY = ['marketCoins'] as const;
 /**
  * Fetches and caches the top 20 cryptocurrencies, auto-refreshing every 60 seconds.
  * Returns data mapped to the clean ICoinRow domain model.
+ * @returns React Query result with ICoinRow[] as the data type.
  */
 export function useMarketCoins() {
   return useQuery<ICoinMarket[], Error, ICoinRow[]>({

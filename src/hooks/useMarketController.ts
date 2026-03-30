@@ -13,6 +13,7 @@ function coinFilterPredicate(row: ICoinRow, query: string): boolean {
 /**
  * Orchestrates all state and handlers needed by the MarketTable.
  * Composes useMarketCoins, useTable, and useSelectedCoin into a single interface.
+ * @returns Processed coin rows, sort/filter state, row interaction handlers, and query status.
  */
 export function useMarketController() {
   const { data: coins = [], isLoading, isFetching, error, refetch } = useMarketCoins();

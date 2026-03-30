@@ -24,6 +24,7 @@ export interface IUseAssetDrawerResult {
 /**
  * Manages the asset drawer state, selected coin, and data fetching.
  * Exposes open/close methods and all data needed by AssetDrawer.
+ * @returns Drawer open state, coin detail, chart data, loading/error flags, and open/close/refetch callbacks.
  */
 export function useAssetDrawer(): IUseAssetDrawerResult {
   const { selectedCoinId, selectCoin, clearSelectedCoin } = useSelectedCoin();

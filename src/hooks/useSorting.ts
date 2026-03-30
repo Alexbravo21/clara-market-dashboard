@@ -32,6 +32,8 @@ function defaultComparator<T>(a: T, b: T, field: string, direction: SortDirectio
 /**
  * Generic hook that manages sort state and returns sorted data.
  * UI-agnostic and works with any data shape.
+ * @param options - Sort configuration including data, initial field/direction, and optional comparator.
+ * @returns Sorted data array, current sort state, and a handler to toggle sort by field.
  */
 export function useSorting<T>({
   data,

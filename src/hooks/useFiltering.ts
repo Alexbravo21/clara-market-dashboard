@@ -16,6 +16,8 @@ interface IUseFilteringResult<T> {
 /**
  * Generic hook that manages filter state and returns filtered data.
  * UI-agnostic and accepts any predicate function to determine matches.
+ * @param options - Filter configuration including data and a predicate function.
+ * @returns Filtered data array, current query string, and a setter to update the query.
  */
 export function useFiltering<T>({
   data,

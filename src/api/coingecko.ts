@@ -4,6 +4,10 @@ const BASE_URL = 'https://api.coingecko.com/api/v3';
 
 const RATE_LIMIT_STATUS = 429;
 
+/**
+ * Custom error class for CoinGecko API failures.
+ * Carries the HTTP status code and a flag indicating whether the failure was a rate limit.
+ */
 class ApiError extends Error {
   statusCode: number;
   isRateLimit: boolean;
@@ -35,6 +39,7 @@ async function apiFetch<T>(endpoint: string): Promise<T> {
 
 /**
  * Fetches the top 20 cryptocurrencies by market cap including 7-day sparkline data.
+ * @returns Array of raw market coin objects from the CoinGecko API.
  */
 export async function fetchMarketCoins(): Promise<ICoinMarket[]> {
   const params = new URLSearchParams({
@@ -50,6 +55,8 @@ export async function fetchMarketCoins(): Promise<ICoinMarket[]> {
 
 /**
  * Fetches detailed information for a specific cryptocurrency by its ID.
+ * @param id - The CoinGecko coin ID (e.g. 'bitcoin').
+ * @returns Raw coin detail object from the CoinGecko API.
  */
 export async function fetchCoinDetail(id: string): Promise<ICoinDetail> {
   const params = new URLSearchParams({
@@ -64,6 +71,8 @@ export async function fetchCoinDetail(id: string): Promise<ICoinDetail> {
 
 /**
  * Fetches the 7-day price history chart data for a specific cryptocurrency.
+ * @param id - The CoinGecko coin ID (e.g. 'bitcoin').
+ * @returns Market chart object containing an array of [timestamp, price] pairs.
  */
 export async function fetchCoinMarketChart(id: string): Promise<IMarketChartData> {
   const params = new URLSearchParams({
