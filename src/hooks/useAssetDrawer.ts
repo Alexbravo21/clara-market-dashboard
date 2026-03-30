@@ -1,4 +1,3 @@
-import { useSelectedCoin } from '../context';
 import { ApiError } from '../api';
 import type { ICoinDetailView } from '../domain';
 import { useCoinDetail } from './useCoinDetail';
@@ -16,18 +15,19 @@ export interface IUseAssetDrawerResult {
   isLoading: boolean;
   hasError: boolean;
   isRateLimit: boolean;
-  open: (coinId: string) => void;
-  close: () => void;
   refetch: () => void;
 }
 
+interface IUseAssetDrawerOptions {
+  selectedCoinId: string | null;
+}
+
 /**
- * Manages the asset drawer state, selected coin, and data fetching.
- * Exposes open/close methods and all data needed by AssetDrawer.
- * @returns Drawer open state, coin detail, chart data, loading/error flags, and open/close/refetch callbacks.
+ * Manages data fetching and state for the asset detail drawer.
+ * @param options - The currently selected coin ID.
+ * @returns Drawer open state, coin detail, chart data, loading/error flags, and a refetch callback.
  */
-export function useAssetDrawer(): IUseAssetDrawerResult {
-  const { selectedCoinId, selectCoin, clearSelectedCoin } = useSelectedCoin();
+export function useAssetDrawer({ selectedCoinId }: IUseAssetDrawerOptions): IUseAssetDrawerResult {
   const isOpen = !!selectedCoinId;
 
   const {
@@ -64,8 +64,6 @@ export function useAssetDrawer(): IUseAssetDrawerResult {
     isLoading: isDetailLoading || isChartLoading,
     hasError: !!(detailError || chartError),
     isRateLimit,
-    open: selectCoin,
-    close: clearSelectedCoin,
     refetch,
   };
 }

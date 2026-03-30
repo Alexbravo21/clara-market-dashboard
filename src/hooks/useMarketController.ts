@@ -1,5 +1,4 @@
 import type { ICoinRow } from '../domain';
-import { useSelectedCoin } from '../context';
 import { useMarketCoins } from './useMarketCoins';
 import { useTable } from './useTable';
 
@@ -12,12 +11,12 @@ function coinFilterPredicate(row: ICoinRow, query: string): boolean {
 
 /**
  * Orchestrates all state and handlers needed by the MarketTable.
- * Composes useMarketCoins, useTable, and useSelectedCoin into a single interface.
+ * Composes useMarketCoins and useTable into a single interface.
+ * @param onSelectCoin - Callback invoked when a row is clicked, receiving the coin ID.
  * @returns Processed coin rows, sort/filter state, row interaction handlers, and query status.
  */
-export function useMarketController() {
+export function useMarketController(onSelectCoin: (id: string) => void) {
   const { data: coins = [], isLoading, isFetching, error, refetch } = useMarketCoins();
-  const { selectedCoinId, selectCoin } = useSelectedCoin();
 
   const { processedData, sortState, filterQuery, handleSort, setFilterQuery } = useTable<ICoinRow>({
     data: coins,
@@ -26,7 +25,7 @@ export function useMarketController() {
   });
 
   const handleRowClick = (row: ICoinRow) => {
-    selectCoin(row.id);
+    onSelectCoin(row.id);
   };
 
   return {
@@ -35,7 +34,6 @@ export function useMarketController() {
     filterQuery,
     handleSort,
     setFilterQuery,
-    selectedCoinId,
     handleRowClick,
     isLoading,
     isFetching,

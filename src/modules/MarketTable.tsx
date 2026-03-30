@@ -14,11 +14,16 @@ const EMPTY_STATE = (
   </div>
 );
 
+interface IMarketTableProps {
+  onSelectCoin: (id: string) => void;
+}
+
 /**
  * The main market overview table organism that handles fetching, sorting, filtering,
  * and rendering the top 20 cryptocurrencies.
+ * @param props.onSelectCoin - Callback invoked when the user selects a coin row.
  */
-export function MarketTable() {
+export function MarketTable({ onSelectCoin }: IMarketTableProps) {
   const {
     processedCoins,
     sortState,
@@ -30,7 +35,7 @@ export function MarketTable() {
     isFetching,
     error,
     refetch,
-  } = useMarketController();
+  } = useMarketController(onSelectCoin);
 
   const isRateLimit =
     error instanceof ApiError ? error.isRateLimit : (error?.message?.includes('429') ?? false);

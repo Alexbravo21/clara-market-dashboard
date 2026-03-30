@@ -1,7 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import { SelectedCoinProvider } from '../../context';
 import * as marketCoinsHook from '../../hooks/useMarketCoins';
 import { MarketTable } from '../MarketTable';
 import type { ICoinRow } from '../../domain';
@@ -35,8 +34,8 @@ const MOCK_COINS: ICoinRow[] = [
   },
 ];
 
-function renderWithProviders(ui: React.ReactElement) {
-  return render(<SelectedCoinProvider>{ui}</SelectedCoinProvider>);
+function renderMarketTable() {
+  return render(<MarketTable onSelectCoin={jest.fn()} />);
 }
 
 describe('MarketTable', () => {
@@ -52,7 +51,7 @@ describe('MarketTable', () => {
       refetch: jest.fn(),
       isFetching: true,
     });
-    renderWithProviders(<MarketTable />);
+    renderMarketTable();
     expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument();
   });
 
@@ -64,7 +63,7 @@ describe('MarketTable', () => {
       refetch: jest.fn(),
       isFetching: false,
     });
-    renderWithProviders(<MarketTable />);
+    renderMarketTable();
     await waitFor(() => {
       expect(screen.getByText('Bitcoin')).toBeInTheDocument();
       expect(screen.getByText('Ethereum')).toBeInTheDocument();
@@ -79,7 +78,7 @@ describe('MarketTable', () => {
       refetch: jest.fn(),
       isFetching: false,
     });
-    renderWithProviders(<MarketTable />);
+    renderMarketTable();
     expect(screen.getByText(/failed to load/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
@@ -93,7 +92,7 @@ describe('MarketTable', () => {
       refetch: jest.fn(),
       isFetching: false,
     });
-    renderWithProviders(<MarketTable />);
+    renderMarketTable();
     await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
     await user.type(screen.getByRole('searchbox'), 'bitcoin');
     expect(screen.getByText('Bitcoin')).toBeInTheDocument();
@@ -109,7 +108,7 @@ describe('MarketTable', () => {
       refetch: jest.fn(),
       isFetching: false,
     });
-    renderWithProviders(<MarketTable />);
+    renderMarketTable();
     await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
     await user.type(screen.getByRole('searchbox'), 'dogecoin');
     expect(screen.getByText(/no results found/i)).toBeInTheDocument();

@@ -14,19 +14,23 @@ import { formatDate, formatUSD, truncateText } from '../utils';
 
 const DESCRIPTION_LIMIT = 300;
 
+interface IAssetDrawerProps {
+  selectedCoinId: string | null;
+  onClose: () => void;
+}
+
 /**
  * Side drawer that displays detailed asset information and a 7-day price chart.
  * Composes {@link useAssetDrawer} for data/state and {@link useDrawerBehavior} for UI behaviour.
  */
-export function AssetDrawer() {
-  const { isOpen, coinDetail, priceChartData, isLoading, hasError, isRateLimit, close, refetch } =
-    useAssetDrawer();
+export function AssetDrawer({ selectedCoinId, onClose }: IAssetDrawerProps) {
+  const { isOpen, coinDetail, priceChartData, isLoading, hasError, isRateLimit, refetch } =
+    useAssetDrawer({ selectedCoinId });
   const { isDescriptionExpanded, closeButtonRef, toggleDescription } = useDrawerBehavior({
     isOpen,
-    onClose: close,
+    onClose,
   });
 
-  const onClose = close;
   const onRetry = refetch;
   const onToggleDescription = toggleDescription;
   const handleBackdropClick = (event: React.MouseEvent) => {

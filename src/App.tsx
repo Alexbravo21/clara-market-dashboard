@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { AssetDrawer, MarketTable } from './modules';
 
 function App() {
+  const [selectedCoinId, setSelectedCoinId] = useState<string | null>(null);
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <header className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
@@ -35,10 +37,10 @@ function App() {
             Top 20 cryptocurrencies by market cap. Click any row for details.
           </p>
         </div>
-        <MarketTable />
+        <MarketTable onSelectCoin={setSelectedCoinId} />
       </main>
 
-      <AssetDrawer />
+      <AssetDrawer selectedCoinId={selectedCoinId} onClose={() => setSelectedCoinId(null)} />
     </div>
   );
 }
