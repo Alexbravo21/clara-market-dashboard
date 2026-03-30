@@ -7,7 +7,6 @@ interface ITableProps<T> {
   sortState?: ISortState<string>;
   onSort?: (key: string) => void;
   onRowClick?: (row: T) => void;
-  onRowKeyDown?: (event: React.KeyboardEvent, row: T) => void;
   ariaRowLabel?: (row: T) => string;
   emptyState?: React.ReactNode;
 }
@@ -23,7 +22,6 @@ export function Table<T>({
   sortState,
   onSort,
   onRowClick,
-  onRowKeyDown,
   ariaRowLabel,
   emptyState,
 }: ITableProps<T>) {
@@ -37,39 +35,59 @@ export function Table<T>({
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead className="bg-gray-50 dark:bg-gray-800">
             <tr>
-              {columns.map((column) => (
-                <th
-                  key={column.key}
-                  scope="col"
-                  className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 select-none ${column.headerClassName ?? ''}`}
-                >
-                  {column.sortable && onSort ? (
-                    <SortButton
-                      label={column.header}
-                      columnKey={column.key}
-                      sortState={sortState}
-                      onSort={onSort}
-                    />
-                  ) : (
-                    column.header
-                  )}
-                </th>
-              ))}
+              {columns.map((column) => {
+                const isSortActive = column.sortable && sortState?.field === column.key;
+                const ariaSort = column.sortable
+                  ? isSortActive
+                    ? sortState?.direction === 'asc'
+                      ? 'ascending'
+                      : 'descending'
+                    : 'none'
+                  : undefined;
+
+                return (
+                  <th
+                    key={column.key}
+                    scope="col"
+                    aria-sort={ariaSort}
+                    className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 select-none ${column.headerClassName ?? ''}`}
+                  >
+                    {column.sortable && onSort ? (
+                      <SortButton
+                        label={column.header}
+                        columnKey={column.key}
+                        sortState={sortState}
+                        onSort={onSort}
+                      />
+                    ) : (
+                      column.header
+                    )}
+                  </th>
+                );
+              })}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200 bg-white dark:divide-gray-700 dark:bg-gray-900">
             {data.map((row) => (
               <tr
                 key={rowKey(row)}
-                role={onRowClick ? 'button' : undefined}
                 tabIndex={onRowClick ? 0 : undefined}
                 className={
                   onRowClick
-                    ? 'cursor-pointer transition-colors hover:bg-blue-50 focus-visible:bg-blue-50 focus-visible:outline-none dark:hover:bg-gray-800 dark:focus-visible:bg-gray-800'
+                    ? 'cursor-pointer transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500 dark:hover:bg-gray-800'
                     : undefined
                 }
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
-                onKeyDown={onRowKeyDown ? (e) => onRowKeyDown(e, row) : undefined}
+                onKeyDown={
+                  onRowClick
+                    ? (e) => {
+                        if (e.key === 'Enter' || e.key === ' ') {
+                          e.preventDefault();
+                          onRowClick(row);
+                        }
+                      }
+                    : undefined
+                }
                 aria-label={ariaRowLabel ? ariaRowLabel(row) : undefined}
               >
                 {columns.map((column) => (
@@ -112,7 +130,6 @@ function SortButton({ label, columnKey, sortState, onSort }: ISortButtonProps) {
       className={`inline-flex items-center gap-1 rounded transition-colors hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:text-gray-100 ${
         isActive ? 'text-gray-900 dark:text-gray-100' : ''
       }`}
-      aria-sort={isActive ? (direction === 'asc' ? 'ascending' : 'descending') : 'none'}
     >
       {label}
       <SortIcon active={isActive} direction={direction} />

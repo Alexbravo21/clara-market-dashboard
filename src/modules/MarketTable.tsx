@@ -26,7 +26,6 @@ export function MarketTable() {
     handleSort,
     setFilterQuery,
     handleRowClick,
-    handleRowKeyDown,
     isLoading,
     isFetching,
     error,
@@ -76,7 +75,6 @@ export function MarketTable() {
         sortState={sortState}
         onSort={handleSort}
         onRowClick={handleRowClick}
-        onRowKeyDown={handleRowKeyDown}
         ariaRowLabel={(row) => `View details for ${row.name}`}
         emptyState={EMPTY_STATE}
       />

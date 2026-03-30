@@ -28,13 +28,6 @@ export function useMarketController() {
     selectCoin(row.id);
   };
 
-  const handleRowKeyDown = (event: React.KeyboardEvent, row: ICoinRow) => {
-    if (event.key === 'Enter' || event.key === ' ') {
-      event.preventDefault();
-      selectCoin(row.id);
-    }
-  };
-
   return {
     processedCoins: processedData,
     sortState,
@@ -43,7 +36,6 @@ export function useMarketController() {
     setFilterQuery,
     selectedCoinId,
     handleRowClick,
-    handleRowKeyDown,
     isLoading,
     isFetching,
     error,
