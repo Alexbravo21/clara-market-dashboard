@@ -120,6 +120,6 @@ GET <https://api.coingecko.com/api/v3/coins/markets>
 ## Documentation
 
 - Always include JSDoc comments for exported functions.
-- Don't include comments in the code.
+- Avoid non-critial comments in the codebase (Most critical ones are JSDoc). If you find yourself writing a comment to explain what a piece of code does, consider refactoring the code to be more self-explanatory instead.
 - Update documentation when code changes.
 - Create a README.md file at the root of the project that provides an overview of the project, setup instructions, and any other relevant information for developers and users.

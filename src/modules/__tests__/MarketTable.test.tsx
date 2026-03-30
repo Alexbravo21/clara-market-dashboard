@@ -4,34 +4,34 @@ import userEvent from '@testing-library/user-event';
 import { SelectedCoinProvider } from '../../context';
 import * as marketCoinsHook from '../../hooks/useMarketCoins';
 import { MarketTable } from '../MarketTable';
-import type { ICoinMarket } from '../../types';
+import type { ICoinRow } from '../../domain';
 
 jest.mock('../../hooks/useMarketCoins');
 
 const mockUseMarketCoins = marketCoinsHook.useMarketCoins as jest.Mock;
 
-const MOCK_COINS: ICoinMarket[] = [
+const MOCK_COINS: ICoinRow[] = [
   {
     id: 'bitcoin',
-    symbol: 'btc',
+    rank: 1,
     name: 'Bitcoin',
-    image: 'https://example.com/btc.png',
-    current_price: 50000,
-    market_cap: 1_000_000_000_000,
-    market_cap_rank: 1,
-    price_change_percentage_24h: 2.5,
-    sparkline_in_7d: { price: [48000, 49000, 50000, 49500, 51000, 50500, 50000] },
+    symbol: 'btc',
+    imageUrl: 'https://example.com/btc.png',
+    price: 50000,
+    priceChange24h: 2.5,
+    marketCap: 1_000_000_000_000,
+    sparklinePrices: [48000, 49000, 50000, 49500, 51000, 50500, 50000],
   },
   {
     id: 'ethereum',
-    symbol: 'eth',
+    rank: 2,
     name: 'Ethereum',
-    image: 'https://example.com/eth.png',
-    current_price: 3000,
-    market_cap: 400_000_000_000,
-    market_cap_rank: 2,
-    price_change_percentage_24h: -1.2,
-    sparkline_in_7d: { price: [3100, 3050, 3000, 2950, 3000, 2900, 3000] },
+    symbol: 'eth',
+    imageUrl: 'https://example.com/eth.png',
+    price: 3000,
+    priceChange24h: -1.2,
+    marketCap: 400_000_000_000,
+    sparklinePrices: [3100, 3050, 3000, 2950, 3000, 2900, 3000],
   },
 ];
 

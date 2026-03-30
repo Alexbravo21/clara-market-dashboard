@@ -40,17 +40,3 @@ export interface ICoinDetail {
 export interface IMarketChartData {
   prices: [number, number][];
 }
-
-export type SortField =
-  | 'market_cap_rank'
-  | 'name'
-  | 'current_price'
-  | 'price_change_percentage_24h'
-  | 'market_cap';
-
-export type SortDirection = 'asc' | 'desc';
-
-export interface ISortConfig {
-  field: SortField;
-  direction: SortDirection;
-}

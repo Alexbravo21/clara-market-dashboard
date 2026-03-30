@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { fetchMarketCoins } from '../api';
+import type { ICoinRow } from '../domain';
+import { mapCoinMarketToRow } from '../domain';
 import type { ICoinMarket } from '../types';
 
 const SIXTY_SECONDS_MS = 60_000;
@@ -8,11 +10,13 @@ const MARKET_COINS_QUERY_KEY = ['marketCoins'] as const;
 
 /**
  * Fetches and caches the top 20 cryptocurrencies, auto-refreshing every 60 seconds.
+ * Returns data mapped to the clean ICoinRow domain model.
  */
 export function useMarketCoins() {
-  return useQuery<ICoinMarket[], Error>({
+  return useQuery<ICoinMarket[], Error, ICoinRow[]>({
     queryKey: MARKET_COINS_QUERY_KEY,
     queryFn: fetchMarketCoins,
+    select: (rawCoins) => rawCoins.map(mapCoinMarketToRow),
     refetchInterval: SIXTY_SECONDS_MS,
     staleTime: SIXTY_SECONDS_MS,
     retry: (failureCount, error) => {

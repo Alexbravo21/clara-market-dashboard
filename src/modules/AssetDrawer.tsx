@@ -144,7 +144,7 @@ export function AssetDrawer() {
             <div className="space-y-6">
               <div className="flex items-center gap-4">
                 <img
-                  src={coinDetail.image.large}
+                  src={coinDetail.imageUrl}
                   alt={`${coinDetail.name} logo`}
                   className="h-16 w-16 rounded-full object-contain"
                 />
@@ -161,7 +161,7 @@ export function AssetDrawer() {
               <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Current Price</p>
                 <p className="mt-1 text-3xl font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                  {formatUSD(coinDetail.market_data.current_price.usd)}
+                  {formatUSD(coinDetail.price)}
                 </p>
               </div>
 
@@ -169,37 +169,34 @@ export function AssetDrawer() {
                 <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <p className="text-xs text-gray-500 dark:text-gray-400">All-Time High</p>
                   <p className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                    {formatUSD(coinDetail.market_data.ath.usd)}
+                    {formatUSD(coinDetail.allTimeHigh)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">
-                    {formatDate(coinDetail.market_data.ath_date.usd)}
+                    {formatDate(coinDetail.allTimeHighDate)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <p className="text-xs text-gray-500 dark:text-gray-400">All-Time Low</p>
                   <p className="mt-1 text-sm font-semibold text-red-600 dark:text-red-400 tabular-nums">
-                    {formatUSD(coinDetail.market_data.atl.usd)}
+                    {formatUSD(coinDetail.allTimeLow)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">
-                    {formatDate(coinDetail.market_data.atl_date.usd)}
+                    {formatDate(coinDetail.allTimeLowDate)}
                   </p>
                 </div>
               </div>
 
-              {coinDetail.description.en && (
+              {coinDetail.description && (
                 <div>
                   <h4 className="mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
                     About
                   </h4>
                   <p className="text-sm leading-relaxed text-gray-600 dark:text-gray-400">
                     {isDescriptionExpanded
-                      ? coinDetail.description.en.replace(/<[^>]*>/g, '')
-                      : truncateText(
-                          coinDetail.description.en.replace(/<[^>]*>/g, ''),
-                          DESCRIPTION_LIMIT,
-                        )}
+                      ? coinDetail.description
+                      : truncateText(coinDetail.description, DESCRIPTION_LIMIT)}
                   </p>
-                  {coinDetail.description.en.replace(/<[^>]*>/g, '').length > DESCRIPTION_LIMIT && (
+                  {coinDetail.description.length > DESCRIPTION_LIMIT && (
                     <button
                       type="button"
                       onClick={() => setIsDescriptionExpanded((prev) => !prev)}
