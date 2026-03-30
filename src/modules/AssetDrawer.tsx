@@ -10,34 +10,37 @@ import {
 } from 'recharts';
 
 import { Button, Skeleton } from '../ui';
-import { useSelectedCoin } from '../context';
-import { useCoinDetail, useCoinMarketChart } from '../hooks';
+import type { ICoinDetailView } from '../domain';
+import type { IPriceChartPoint } from '../hooks/useAssetDrawer';
 import { formatDate, formatUSD, truncateText } from '../utils';
-import { ApiError } from '../api';
 
 const DESCRIPTION_LIMIT = 300;
 
+interface IAssetDrawerProps {
+  isOpen: boolean;
+  coinDetail: ICoinDetailView | undefined;
+  priceChartData: IPriceChartPoint[] | undefined;
+  isLoading: boolean;
+  hasError: boolean;
+  isRateLimit: boolean;
+  onClose: () => void;
+  onRetry: () => void;
+}
+
 /**
- * A side drawer panel that displays detailed asset information and a 7-day price chart.
+ * A purely presentational side drawer that displays detailed asset information
+ * and a 7-day price chart. Receives all data and callbacks via props.
  */
-export function AssetDrawer() {
-  const { selectedCoinId, clearSelectedCoin } = useSelectedCoin();
-  const isOpen = !!selectedCoinId;
-
-  const {
-    data: coinDetail,
-    isLoading: isDetailLoading,
-    error: detailError,
-    refetch: refetchDetail,
-  } = useCoinDetail(selectedCoinId);
-
-  const {
-    data: chartData,
-    isLoading: isChartLoading,
-    error: chartError,
-    refetch: refetchChart,
-  } = useCoinMarketChart(selectedCoinId);
-
+export function AssetDrawer({
+  isOpen,
+  coinDetail,
+  priceChartData,
+  isLoading,
+  hasError,
+  isRateLimit,
+  onClose,
+  onRetry,
+}: IAssetDrawerProps) {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
@@ -47,29 +50,21 @@ export function AssetDrawer() {
       setIsDescriptionExpanded(false);
       setTimeout(() => closeButtonRef.current?.focus(), 100);
     }
-  }, [selectedCoinId, isOpen]);
+  }, [isOpen]);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && isOpen) {
-        clearSelectedCoin();
+        onClose();
       }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, clearSelectedCoin]);
-
-  const priceChartData = chartData?.prices.map(([timestamp, price]) => ({
-    date: new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    price,
-  }));
-
-  const isRateLimit = (error: Error | null) =>
-    error instanceof ApiError ? error.isRateLimit : false;
+  }, [isOpen, onClose]);
 
   const handleBackdropClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget) {
-      clearSelectedCoin();
+      onClose();
     }
   };
 
@@ -97,7 +92,7 @@ export function AssetDrawer() {
           <button
             ref={closeButtonRef}
             type="button"
-            onClick={clearSelectedCoin}
+            onClick={onClose}
             className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-gray-800"
             aria-label="Close asset details"
           >
@@ -117,28 +112,19 @@ export function AssetDrawer() {
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
-          {isDetailLoading || isChartLoading ? (
+          {isLoading ? (
             <DrawerSkeleton />
-          ) : detailError || chartError ? (
+          ) : hasError ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
               <p className="mb-2 font-semibold text-gray-900 dark:text-gray-100">
-                {isRateLimit(detailError ?? chartError)
-                  ? 'Rate limit reached'
-                  : 'Failed to load details'}
+                {isRateLimit ? 'Rate limit reached' : 'Failed to load details'}
               </p>
               <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-                {isRateLimit(detailError ?? chartError)
+                {isRateLimit
                   ? 'Please wait a moment before retrying.'
                   : 'An error occurred while loading asset details.'}
               </p>
-              <Button
-                onClick={() => {
-                  refetchDetail();
-                  refetchChart();
-                }}
-              >
-                Retry
-              </Button>
+              <Button onClick={onRetry}>Retry</Button>
             </div>
           ) : coinDetail ? (
             <div className="space-y-6">
