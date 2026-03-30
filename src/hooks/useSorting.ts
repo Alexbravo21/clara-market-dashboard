@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import type { ISortState, SortDirection } from '../ui/table';
+import type { ISortState, SortDirection } from '../ui';
 
 interface IUseSortingOptions<T> {
   data: T[];

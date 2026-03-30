@@ -1,4 +1,3 @@
-import { useEffect, useRef, useState } from 'react';
 import {
   CartesianGrid,
   Line,
@@ -10,58 +9,26 @@ import {
 } from 'recharts';
 
 import { Button, Skeleton } from '../ui';
-import type { ICoinDetailView } from '../domain';
-import type { IPriceChartPoint } from '../hooks/useAssetDrawer';
+import { useAssetDrawer, useDrawerBehavior } from '../hooks';
 import { formatDate, formatUSD, truncateText } from '../utils';
 
 const DESCRIPTION_LIMIT = 300;
 
-interface IAssetDrawerProps {
-  isOpen: boolean;
-  coinDetail: ICoinDetailView | undefined;
-  priceChartData: IPriceChartPoint[] | undefined;
-  isLoading: boolean;
-  hasError: boolean;
-  isRateLimit: boolean;
-  onClose: () => void;
-  onRetry: () => void;
-}
-
 /**
- * A purely presentational side drawer that displays detailed asset information
- * and a 7-day price chart. Receives all data and callbacks via props.
+ * Side drawer that displays detailed asset information and a 7-day price chart.
+ * Composes {@link useAssetDrawer} for data/state and {@link useDrawerBehavior} for UI behaviour.
  */
-export function AssetDrawer({
-  isOpen,
-  coinDetail,
-  priceChartData,
-  isLoading,
-  hasError,
-  isRateLimit,
-  onClose,
-  onRetry,
-}: IAssetDrawerProps) {
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const drawerRef = useRef<HTMLDivElement>(null);
+export function AssetDrawer() {
+  const { isOpen, coinDetail, priceChartData, isLoading, hasError, isRateLimit, close, refetch } =
+    useAssetDrawer();
+  const { isDescriptionExpanded, closeButtonRef, toggleDescription } = useDrawerBehavior({
+    isOpen,
+    onClose: close,
+  });
 
-  useEffect(() => {
-    if (isOpen) {
-      setIsDescriptionExpanded(false);
-      setTimeout(() => closeButtonRef.current?.focus(), 100);
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && isOpen) {
-        onClose();
-      }
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
+  const onClose = close;
+  const onRetry = refetch;
+  const onToggleDescription = toggleDescription;
   const handleBackdropClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget) {
       onClose();
@@ -79,7 +46,6 @@ export function AssetDrawer({
       )}
 
       <div
-        ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-label={coinDetail ? `${coinDetail.name} details` : 'Asset details'}
@@ -185,7 +151,7 @@ export function AssetDrawer({
                   {coinDetail.description.length > DESCRIPTION_LIMIT && (
                     <button
                       type="button"
-                      onClick={() => setIsDescriptionExpanded((prev) => !prev)}
+                      onClick={onToggleDescription}
                       className="mt-1 text-sm font-medium text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400"
                     >
                       {isDescriptionExpanded ? 'Read less' : 'Read more'}

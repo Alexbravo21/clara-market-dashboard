@@ -1,7 +1,7 @@
 import { Button, SkeletonTable, Table } from '../ui';
 import { SearchInput } from '../components';
 import type { ICoinRow } from '../domain';
-import { COIN_COLUMNS } from '../domain/columns';
+import { COIN_COLUMNS } from '../domain';
 import { useMarketController } from '../hooks';
 import { ApiError } from '../api';
 

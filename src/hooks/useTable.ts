@@ -1,4 +1,4 @@
-import type { ISortState, SortDirection } from '../ui/table';
+import type { ISortState, SortDirection } from '../ui';
 import { useFiltering } from './useFiltering';
 import { useSorting } from './useSorting';
 

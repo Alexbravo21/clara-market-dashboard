@@ -1,9 +1,6 @@
 import { AssetDrawer, MarketTable } from './modules';
-import { useAssetDrawer } from './hooks';
 
 function App() {
-  const drawer = useAssetDrawer();
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <header className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
@@ -41,16 +38,7 @@ function App() {
         <MarketTable />
       </main>
 
-      <AssetDrawer
-        isOpen={drawer.isOpen}
-        coinDetail={drawer.coinDetail}
-        priceChartData={drawer.priceChartData}
-        isLoading={drawer.isLoading}
-        hasError={drawer.hasError}
-        isRateLimit={drawer.isRateLimit}
-        onClose={drawer.close}
-        onRetry={drawer.refetch}
-      />
+      <AssetDrawer />
     </div>
   );
 }

@@ -6,4 +6,6 @@ export { useFiltering } from './useFiltering';
 export { useTable } from './useTable';
 export { useMarketController } from './useMarketController';
 export { useAssetDrawer } from './useAssetDrawer';
+export { useDrawerBehavior } from './useDrawerBehavior';
 export type { IPriceChartPoint, IUseAssetDrawerResult } from './useAssetDrawer';
+export type { IDrawerBehaviorResult } from './useDrawerBehavior';

@@ -1,6 +1,6 @@
 import { CryptoName, PriceChange } from '../components';
 import { SparklineChart } from '../ui';
-import type { IColumn } from '../ui/table';
+import type { IColumn } from '../ui';
 import { formatCompactUSD, formatUSD } from '../utils';
 import type { ICoinRow } from './models';
 
