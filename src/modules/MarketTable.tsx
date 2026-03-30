@@ -3,7 +3,6 @@ import { SearchInput } from '../components';
 import type { ICoinRow } from '../domain';
 import { COIN_COLUMNS } from '../domain';
 import { useMarketController } from '../hooks';
-import { ApiError } from '../api';
 
 const EMPTY_STATE = (
   <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
@@ -33,16 +32,14 @@ export function MarketTable({ onSelectCoin }: IMarketTableProps) {
     handleRowClick,
     isLoading,
     isFetching,
-    error,
+    hasError,
+    isRateLimit,
     refetch,
   } = useMarketController(onSelectCoin);
 
-  const isRateLimit =
-    error instanceof ApiError ? error.isRateLimit : (error?.message?.includes('429') ?? false);
-
   if (isLoading) return <SkeletonTable rows={10} columns={6} />;
 
-  if (error) {
+  if (hasError) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
         <p className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">

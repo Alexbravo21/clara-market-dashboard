@@ -1,4 +1,5 @@
 import type { ICoinRow } from '../domain';
+import { ApiError } from '../api';
 import { useMarketCoins } from './useMarketCoins';
 import { useTable } from './useTable';
 
@@ -17,6 +18,8 @@ function coinFilterPredicate(row: ICoinRow, query: string): boolean {
  */
 export function useMarketController(onSelectCoin: (id: string) => void) {
   const { data: coins = [], isLoading, isFetching, error, refetch } = useMarketCoins();
+
+  const isRateLimit = error instanceof ApiError ? error.isRateLimit : false;
 
   const { processedData, sortState, filterQuery, handleSort, setFilterQuery } = useTable<ICoinRow>({
     data: coins,
@@ -37,7 +40,8 @@ export function useMarketController(onSelectCoin: (id: string) => void) {
     handleRowClick,
     isLoading,
     isFetching,
-    error,
+    hasError: !!error,
+    isRateLimit,
     refetch,
   };
 }
