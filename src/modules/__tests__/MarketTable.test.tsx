@@ -2,6 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import * as marketCoinsHook from '../../hooks/useMarketCoins';
+import { ApiError } from '../../api';
 import { MarketTable } from '../MarketTable';
 import type { ICoinRow } from '../../domain';
 
@@ -81,6 +82,34 @@ describe('MarketTable', () => {
     renderMarketTable();
     expect(screen.getByText(/failed to load/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+  });
+
+  it('shows a rate-limit message and retry button when the API returns 429', () => {
+    mockUseMarketCoins.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new ApiError('rate limited', 429, true),
+      refetch: jest.fn(),
+      isFetching: false,
+    });
+    renderMarketTable();
+    expect(screen.getAllByText(/rate limit/i).length).toBeGreaterThan(0);
+    expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
+  });
+
+  it('calls refetch when the retry button is clicked', async () => {
+    const refetch = jest.fn();
+    mockUseMarketCoins.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      error: new Error('Network error'),
+      refetch,
+      isFetching: false,
+    });
+    const user = userEvent.setup();
+    renderMarketTable();
+    await user.click(screen.getByRole('button', { name: /retry/i }));
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it('filters coins by search query', async () => {
