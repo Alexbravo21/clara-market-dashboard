@@ -9,34 +9,35 @@ import {
 } from 'recharts';
 
 import { Button, Skeleton } from '../ui';
-import { useAssetDrawer, useDrawerBehavior } from '../hooks';
+import { useDrawerBehavior } from '../hooks';
+import type { IDrawerControllerState } from '../hooks';
 import { formatCoinPrice, formatCoinDate } from '../domain';
 import { truncateText } from '../utils';
 
 const DESCRIPTION_LIMIT = 300;
 
 interface IAssetDrawerProps {
-  selectedCoinId: string | null;
-  onClose: () => void;
+  drawer: IDrawerControllerState;
 }
 
 /**
  * Side drawer that displays detailed asset information and a 7-day price chart.
- * Composes {@link useAssetDrawer} for data/state and {@link useDrawerBehavior} for UI behaviour.
+ * Purely presentational — receives all data via the drawer prop.
+ * Composes {@link useDrawerBehavior} for UI-only behaviour (focus, keyboard, description toggle).
  */
-export function AssetDrawer({ selectedCoinId, onClose }: IAssetDrawerProps) {
-  const { isOpen, coinDetail, priceChartData, isLoading, hasError, isRateLimit, refetch } =
-    useAssetDrawer({ selectedCoinId });
+export function AssetDrawer({ drawer }: IAssetDrawerProps) {
+  const { isOpen, coinDetail, priceChartData, isLoading, hasError, isRateLimit, refetch, close } =
+    drawer;
   const { isDescriptionExpanded, closeButtonRef, toggleDescription } = useDrawerBehavior({
     isOpen,
-    onClose,
+    onClose: close,
   });
 
   const onRetry = refetch;
   const onToggleDescription = toggleDescription;
   const handleBackdropClick = (event: React.MouseEvent) => {
     if (event.target === event.currentTarget) {
-      onClose();
+      close();
     }
   };
 
@@ -63,7 +64,7 @@ export function AssetDrawer({ selectedCoinId, onClose }: IAssetDrawerProps) {
           <button
             ref={closeButtonRef}
             type="button"
-            onClick={onClose}
+            onClick={close}
             className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-gray-800"
             aria-label="Close asset details"
           >

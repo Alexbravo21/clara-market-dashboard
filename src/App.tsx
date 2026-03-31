@@ -1,8 +1,9 @@
-import { useState } from 'react';
 import { AssetDrawer, MarketTable } from './modules';
+import { useMarketController } from './hooks';
 
 function App() {
-  const [selectedCoinId, setSelectedCoinId] = useState<string | null>(null);
+  const controller = useMarketController();
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <header className="border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
@@ -37,10 +38,10 @@ function App() {
             Top 20 cryptocurrencies by market cap. Click any row for details.
           </p>
         </div>
-        <MarketTable onSelectCoin={setSelectedCoinId} />
+        <MarketTable table={controller.table} state={controller.state} />
       </main>
 
-      <AssetDrawer selectedCoinId={selectedCoinId} onClose={() => setSelectedCoinId(null)} />
+      <AssetDrawer drawer={controller.drawer} />
     </div>
   );
 }

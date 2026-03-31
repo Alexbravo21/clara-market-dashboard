@@ -1,7 +1,11 @@
-import type { ICoin } from '../domain/coin';
+import { useState } from 'react';
+
+import type { ISortState } from '../ui';
+import type { ICoin, ICoinDetail, IPriceChartPoint } from '../domain/coin';
 import { ApiError } from '../api';
 import { useMarketCoins } from './useMarketCoins';
 import { useTable } from './useTable';
+import { useAssetDrawer } from './useAssetDrawer';
 
 function coinFilterPredicate(row: ICoin, query: string): boolean {
   const lowerQuery = query.toLowerCase();
@@ -10,15 +14,59 @@ function coinFilterPredicate(row: ICoin, query: string): boolean {
   );
 }
 
-/**
- * Orchestrates all state and handlers needed by the MarketTable.
- * Composes useMarketCoins and useTable into a single interface.
- * @param onSelectCoin - Callback invoked when a row is clicked, receiving the coin ID.
- * @returns Processed coin rows, sort/filter state, row interaction handlers, and query status.
- */
-export function useMarketController(onSelectCoin: (id: string) => void) {
-  const { data: coins = [], isLoading, isFetching, error, refetch } = useMarketCoins();
+export interface ITableSortingState {
+  state: ISortState<string>;
+  onSort: (field: string) => void;
+}
 
+export interface ITableFilteringState {
+  query: string;
+  onChange: (query: string) => void;
+}
+
+export interface ITableControllerState {
+  data: ICoin[];
+  sorting: ITableSortingState;
+  filtering: ITableFilteringState;
+  onRowClick: (row: ICoin) => void;
+}
+
+export interface IDrawerControllerState {
+  isOpen: boolean;
+  coinDetail: ICoinDetail | undefined;
+  priceChartData: IPriceChartPoint[] | undefined;
+  isLoading: boolean;
+  hasError: boolean;
+  isRateLimit: boolean;
+  open: (id: string) => void;
+  close: () => void;
+  refetch: () => void;
+}
+
+export interface IPageState {
+  isLoading: boolean;
+  isFetching: boolean;
+  hasError: boolean;
+  isRateLimit: boolean;
+  refetch: () => void;
+}
+
+export interface IMarketControllerResult {
+  table: ITableControllerState;
+  drawer: IDrawerControllerState;
+  state: IPageState;
+}
+
+/**
+ * Single orchestrator for the market page.
+ * Composes data fetching, table behaviour, asset selection and drawer data into one unified API.
+ * Contains no UI logic.
+ * @returns Structured table, drawer, and page state.
+ */
+export function useMarketController(): IMarketControllerResult {
+  const [selectedCoinId, setSelectedCoinId] = useState<string | null>(null);
+
+  const { data: coins = [], isLoading, isFetching, error, refetch } = useMarketCoins();
   const isRateLimit = error instanceof ApiError ? error.isRateLimit : false;
 
   const { processedData, sortState, filterQuery, handleSort, setFilterQuery } = useTable<ICoin>({
@@ -27,21 +75,40 @@ export function useMarketController(onSelectCoin: (id: string) => void) {
     filtering: { predicate: coinFilterPredicate },
   });
 
-  const handleRowClick = (row: ICoin) => {
-    onSelectCoin(row.id);
-  };
+  const {
+    isOpen,
+    coinDetail,
+    priceChartData,
+    isLoading: isDrawerLoading,
+    hasError: drawerHasError,
+    isRateLimit: drawerIsRateLimit,
+    refetch: refetchDrawer,
+  } = useAssetDrawer({ selectedCoinId });
 
   return {
-    processedCoins: processedData,
-    sortState,
-    filterQuery,
-    handleSort,
-    setFilterQuery,
-    handleRowClick,
-    isLoading,
-    isFetching,
-    hasError: !!error,
-    isRateLimit,
-    refetch,
+    table: {
+      data: processedData,
+      sorting: { state: sortState, onSort: handleSort },
+      filtering: { query: filterQuery, onChange: setFilterQuery },
+      onRowClick: (row: ICoin) => setSelectedCoinId(row.id),
+    },
+    drawer: {
+      isOpen,
+      coinDetail,
+      priceChartData,
+      isLoading: isDrawerLoading,
+      hasError: drawerHasError,
+      isRateLimit: drawerIsRateLimit,
+      open: (id: string) => setSelectedCoinId(id),
+      close: () => setSelectedCoinId(null),
+      refetch: refetchDrawer,
+    },
+    state: {
+      isLoading,
+      isFetching,
+      hasError: !!error,
+      isRateLimit,
+      refetch,
+    },
   };
 }

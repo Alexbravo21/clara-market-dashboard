@@ -1,16 +1,12 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
-import * as marketCoinsHook from '../../hooks/useMarketCoins';
 import { ApiError } from '../../api';
 import { MarketTable } from '../MarketTable';
-import type { ICoinRow } from '../../domain';
+import type { ITableControllerState, IPageState } from '../../hooks';
+import type { ICoin } from '../../domain/coin';
 
-jest.mock('../../hooks/useMarketCoins');
-
-const mockUseMarketCoins = marketCoinsHook.useMarketCoins as jest.Mock;
-
-const MOCK_COINS: ICoinRow[] = [
+const MOCK_COINS: ICoin[] = [
   {
     id: 'bitcoin',
     rank: 1,
@@ -35,111 +31,101 @@ const MOCK_COINS: ICoinRow[] = [
   },
 ];
 
-function renderMarketTable() {
-  return render(<MarketTable onSelectCoin={jest.fn()} />);
+function makeTable(overrides: Partial<ITableControllerState> = {}): ITableControllerState {
+  return {
+    data: MOCK_COINS,
+    sorting: { state: { field: 'rank', direction: 'asc' }, onSort: jest.fn() },
+    filtering: { query: '', onChange: jest.fn() },
+    onRowClick: jest.fn(),
+    ...overrides,
+  };
+}
+
+function makeState(overrides: Partial<IPageState> = {}): IPageState {
+  return {
+    isLoading: false,
+    isFetching: false,
+    hasError: false,
+    isRateLimit: false,
+    refetch: jest.fn(),
+    ...overrides,
+  };
 }
 
 describe('MarketTable', () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-  });
-
   it('shows a skeleton loader while fetching', () => {
-    mockUseMarketCoins.mockReturnValue({
-      data: undefined,
-      isLoading: true,
-      error: null,
-      refetch: jest.fn(),
-      isFetching: true,
-    });
-    renderMarketTable();
+    render(<MarketTable table={makeTable({ data: [] })} state={makeState({ isLoading: true })} />);
     expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument();
   });
 
   it('renders coin rows after successful fetch', async () => {
-    mockUseMarketCoins.mockReturnValue({
-      data: MOCK_COINS,
-      isLoading: false,
-      error: null,
-      refetch: jest.fn(),
-      isFetching: false,
-    });
-    renderMarketTable();
+    render(<MarketTable table={makeTable()} state={makeState()} />);
     await waitFor(() => {
       expect(screen.getByText('Bitcoin')).toBeInTheDocument();
       expect(screen.getByText('Ethereum')).toBeInTheDocument();
     });
   });
 
-  it('shows an error message when fetch fails', async () => {
-    mockUseMarketCoins.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      error: new Error('Network error'),
-      refetch: jest.fn(),
-      isFetching: false,
-    });
-    renderMarketTable();
+  it('shows an error message when fetch fails', () => {
+    render(<MarketTable table={makeTable({ data: [] })} state={makeState({ hasError: true })} />);
     expect(screen.getByText(/failed to load/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
 
   it('shows a rate-limit message and retry button when the API returns 429', () => {
-    mockUseMarketCoins.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      error: new ApiError('rate limited', 429, true),
-      refetch: jest.fn(),
-      isFetching: false,
-    });
-    renderMarketTable();
+    render(
+      <MarketTable
+        table={makeTable({ data: [] })}
+        state={makeState({ hasError: true, isRateLimit: true })}
+      />,
+    );
     expect(screen.getAllByText(/rate limit/i).length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
 
   it('calls refetch when the retry button is clicked', async () => {
     const refetch = jest.fn();
-    mockUseMarketCoins.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      error: new Error('Network error'),
-      refetch,
-      isFetching: false,
-    });
     const user = userEvent.setup();
-    renderMarketTable();
+    render(
+      <MarketTable
+        table={makeTable({ data: [] })}
+        state={makeState({ hasError: true, refetch })}
+      />,
+    );
     await user.click(screen.getByRole('button', { name: /retry/i }));
     expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it('filters coins by search query', async () => {
     const user = userEvent.setup();
-    mockUseMarketCoins.mockReturnValue({
-      data: MOCK_COINS,
-      isLoading: false,
-      error: null,
-      refetch: jest.fn(),
-      isFetching: false,
-    });
-    renderMarketTable();
+    const onChange = jest.fn();
+    render(<MarketTable table={makeTable({ filtering: { query: '', onChange } })} state={makeState()} />);
     await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
     await user.type(screen.getByRole('searchbox'), 'bitcoin');
-    expect(screen.getByText('Bitcoin')).toBeInTheDocument();
-    expect(screen.queryByText('Ethereum')).not.toBeInTheDocument();
+    expect(onChange).toHaveBeenCalled();
   });
 
-  it('shows empty state when no coins match search', async () => {
-    const user = userEvent.setup();
-    mockUseMarketCoins.mockReturnValue({
-      data: MOCK_COINS,
-      isLoading: false,
-      error: null,
-      refetch: jest.fn(),
-      isFetching: false,
-    });
-    renderMarketTable();
-    await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
-    await user.type(screen.getByRole('searchbox'), 'dogecoin');
+  it('shows empty state when no coins match search', () => {
+    render(
+      <MarketTable
+        table={makeTable({ data: [] })}
+        state={makeState()}
+      />,
+    );
     expect(screen.getByText(/no results found/i)).toBeInTheDocument();
   });
+
+  it('calls onRowClick with the correct row when a row is clicked', async () => {
+    const onRowClick = jest.fn();
+    const user = userEvent.setup();
+    render(<MarketTable table={makeTable({ onRowClick })} state={makeState()} />);
+    await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
+    await user.click(screen.getByText('Bitcoin'));
+    expect(onRowClick).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 'bitcoin' }),
+    );
+  });
 });
+
+// Silence unused import lint warning — ApiError kept for parity with prior test expectations
+void ApiError;

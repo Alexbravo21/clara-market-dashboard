@@ -2,7 +2,7 @@ import { Button, SkeletonTable, Table } from '../ui';
 import { SearchInput } from '../components';
 import type { ICoin } from '../domain/coin';
 import { COIN_COLUMNS } from '../domain';
-import { useMarketController } from '../hooks';
+import type { ITableControllerState, IPageState } from '../hooks';
 
 const EMPTY_STATE = (
   <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
@@ -14,43 +14,29 @@ const EMPTY_STATE = (
 );
 
 interface IMarketTableProps {
-  onSelectCoin: (id: string) => void;
+  table: ITableControllerState;
+  state: IPageState;
 }
 
 /**
- * The main market overview table organism that handles fetching, sorting, filtering,
- * and rendering the top 20 cryptocurrencies.
- * @param props.onSelectCoin - Callback invoked when the user selects a coin row.
+ * The main market overview table organism. Purely presentational — receives all
+ * data and handlers from the controller via props.
  */
-export function MarketTable({ onSelectCoin }: IMarketTableProps) {
-  const {
-    processedCoins,
-    sortState,
-    filterQuery,
-    handleSort,
-    setFilterQuery,
-    handleRowClick,
-    isLoading,
-    isFetching,
-    hasError,
-    isRateLimit,
-    refetch,
-  } = useMarketController(onSelectCoin);
+export function MarketTable({ table, state }: IMarketTableProps) {
+  if (state.isLoading) return <SkeletonTable rows={10} columns={6} />;
 
-  if (isLoading) return <SkeletonTable rows={10} columns={6} />;
-
-  if (hasError) {
+  if (state.hasError) {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
         <p className="mb-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
-          {isRateLimit ? 'Rate limit reached' : 'Failed to load data'}
+          {state.isRateLimit ? 'Rate limit reached' : 'Failed to load data'}
         </p>
         <p className="mb-6 text-sm text-gray-500 dark:text-gray-400">
-          {isRateLimit
+          {state.isRateLimit
             ? 'CoinGecko API rate limit exceeded. Please wait a moment before retrying.'
             : 'An error occurred while fetching market data. Please try again.'}
         </p>
-        <Button onClick={() => refetch()}>Retry</Button>
+        <Button onClick={() => state.refetch()}>Retry</Button>
       </div>
     );
   }
@@ -59,11 +45,11 @@ export function MarketTable({ onSelectCoin }: IMarketTableProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between gap-4">
         <SearchInput
-          value={filterQuery}
-          onChange={setFilterQuery}
+          value={table.filtering.query}
+          onChange={table.filtering.onChange}
           placeholder="Search by name or symbol..."
         />
-        {isFetching && !isLoading && (
+        {state.isFetching && !state.isLoading && (
           <span className="text-xs text-gray-400 dark:text-gray-500" aria-live="polite">
             Refreshing...
           </span>
@@ -71,12 +57,12 @@ export function MarketTable({ onSelectCoin }: IMarketTableProps) {
       </div>
 
       <Table<ICoin>
-        data={processedCoins}
+        data={table.data}
         columns={COIN_COLUMNS}
         rowKey={(row) => row.id}
-        sortState={sortState}
-        onSort={handleSort}
-        onRowClick={handleRowClick}
+        sortState={table.sorting.state}
+        onSort={table.sorting.onSort}
+        onRowClick={table.onRowClick}
         ariaRowLabel={(row) => `View details for ${row.name}`}
         emptyState={EMPTY_STATE}
       />
