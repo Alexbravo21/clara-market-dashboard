@@ -70,7 +70,7 @@ export function MarketTable({ table, state }: IMarketTableProps) {
         sortState={table.sorting.state}
         onSort={table.sorting.onSort}
         onRowClick={table.onRowClick}
-        onRowHover={table.onRowHover}
+        // onRowHover={table.onRowHover}
         ariaRowLabel={(row) => `View details for ${row.name}`}
         emptyState={
           <EmptyState
