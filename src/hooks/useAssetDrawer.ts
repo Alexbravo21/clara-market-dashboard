@@ -1,6 +1,5 @@
 import { ApiError } from '../api';
 import type { ICoinDetail, IPriceChartPoint } from '../domain/coin';
-import { mapPriceChartPoints } from '../domain/coin';
 import { useCoinDetail } from './useCoinDetail';
 import { useCoinMarketChart } from './useCoinMarketChart';
 
@@ -9,7 +8,7 @@ export type { IPriceChartPoint } from '../domain/coin';
 export interface IUseAssetDrawerResult {
   isOpen: boolean;
   coinDetail: ICoinDetail | undefined;
-  priceChartData: IPriceChartPoint[] | undefined;
+  priceChartData: IPriceChartPoint[];
   isLoading: boolean;
   hasError: boolean;
   isRateLimit: boolean;
@@ -36,13 +35,11 @@ export function useAssetDrawer({ selectedCoinId }: IUseAssetDrawerOptions): IUse
   } = useCoinDetail(selectedCoinId);
 
   const {
-    data: chartData,
+    data: priceChartData = [],
     isLoading: isChartLoading,
     error: chartError,
     refetch: refetchChart,
   } = useCoinMarketChart(selectedCoinId);
-
-  const priceChartData = chartData ? mapPriceChartPoints(chartData) : undefined;
 
   const activeError = detailError ?? chartError;
   const isRateLimit = activeError instanceof ApiError ? activeError.isRateLimit : false;

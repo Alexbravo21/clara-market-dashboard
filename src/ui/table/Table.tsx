@@ -8,6 +8,7 @@ interface ITableProps<T> {
   sortState?: ISortState<string>;
   onSort?: (key: string) => void;
   onRowClick?: (row: T) => void;
+  onRowHover?: (row: T) => void;
   ariaRowLabel?: (row: T) => string;
   emptyState?: React.ReactNode;
 }
@@ -23,6 +24,7 @@ export function Table<T>({
   sortState,
   onSort,
   onRowClick,
+  onRowHover,
   ariaRowLabel,
   emptyState,
 }: ITableProps<T>) {
@@ -79,6 +81,7 @@ export function Table<T>({
                     : undefined
                 }
                 onClick={onRowClick ? () => onRowClick(row) : undefined}
+                onMouseEnter={onRowHover ? () => onRowHover(row) : undefined}
                 onKeyDown={
                   onRowClick
                     ? (e) => {

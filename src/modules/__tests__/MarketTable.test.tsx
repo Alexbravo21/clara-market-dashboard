@@ -37,6 +37,7 @@ function makeTable(overrides: Partial<ITableControllerState> = {}): ITableContro
     sorting: { state: { field: 'rank', direction: 'asc' }, onSort: jest.fn() },
     filtering: { query: '', onChange: jest.fn() },
     onRowClick: jest.fn(),
+    onRowHover: jest.fn(),
     ...overrides,
   };
 }

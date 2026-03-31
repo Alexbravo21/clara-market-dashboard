@@ -1,5 +1,5 @@
 import { ApiError } from '../coingecko';
-import { apiRetry } from '../queryConfig';
+import { apiRetry, apiRetryDelay } from '../queryConfig';
 
 describe('ApiError', () => {
   it('is an instance of Error', () => {
@@ -96,5 +96,24 @@ describe('apiRetry', () => {
       expect(retry(0, error)).toBe(true);
       expect(retry(1, error)).toBe(false);
     });
+  });
+});
+
+describe('apiRetryDelay', () => {
+  it('returns 1000 ms on the first attempt (attempt 0)', () => {
+    expect(apiRetryDelay(0)).toBe(1_000);
+  });
+
+  it('returns 2000 ms on the second attempt (attempt 1)', () => {
+    expect(apiRetryDelay(1)).toBe(2_000);
+  });
+
+  it('returns 4000 ms on the third attempt (attempt 2)', () => {
+    expect(apiRetryDelay(2)).toBe(4_000);
+  });
+
+  it('caps the delay at 30 000 ms regardless of attempt count', () => {
+    expect(apiRetryDelay(10)).toBe(30_000);
+    expect(apiRetryDelay(100)).toBe(30_000);
   });
 });

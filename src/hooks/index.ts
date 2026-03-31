@@ -1,6 +1,7 @@
 export { useMarketCoins } from './useMarketCoins';
 export { useCoinDetail } from './useCoinDetail';
 export { useCoinMarketChart } from './useCoinMarketChart';
+export { usePrefetchCoinDetail } from './usePrefetchCoinDetail';
 export { useTable } from './useTable';
 export { useMarketController } from './useMarketController';
 export type {

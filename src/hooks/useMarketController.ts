@@ -6,6 +6,7 @@ import { ApiError } from '../api';
 import { useMarketCoins } from './useMarketCoins';
 import { useTable } from './useTable';
 import { useAssetDrawer } from './useAssetDrawer';
+// import { usePrefetchCoinDetail } from './usePrefetchCoinDetail';
 
 function coinFilterPredicate(row: ICoin, query: string): boolean {
   const lowerQuery = query.toLowerCase();
@@ -29,12 +30,13 @@ export interface ITableControllerState {
   sorting: ITableSortingState;
   filtering: ITableFilteringState;
   onRowClick: (row: ICoin) => void;
+  // onRowHover: (row: ICoin) => void;
 }
 
 export interface IDrawerControllerState {
   isOpen: boolean;
   coinDetail: ICoinDetail | undefined;
-  priceChartData: IPriceChartPoint[] | undefined;
+  priceChartData: IPriceChartPoint[];
   isLoading: boolean;
   hasError: boolean;
   isRateLimit: boolean;
@@ -68,6 +70,7 @@ export function useMarketController(): IMarketControllerResult {
 
   const { data: coins = [], isLoading, isFetching, error, refetch } = useMarketCoins();
   const isRateLimit = error instanceof ApiError ? error.isRateLimit : false;
+  // const prefetchCoinDetail = usePrefetchCoinDetail();
 
   const { processedData, sortState, filterQuery, handleSort, setFilterQuery } = useTable<ICoin>({
     data: coins,
@@ -91,6 +94,7 @@ export function useMarketController(): IMarketControllerResult {
       sorting: { state: sortState, onSort: handleSort },
       filtering: { query: filterQuery, onChange: setFilterQuery },
       onRowClick: (row: ICoin) => setSelectedCoinId(row.id),
+      // onRowHover: (row: ICoin) => prefetchCoinDetail(row.id),
     },
     drawer: {
       isOpen,

@@ -1,6 +1,7 @@
 import { ApiError } from './coingecko';
 
 const HTTP_TOO_MANY_REQUESTS = 429;
+const MAX_RETRY_DELAY_MS = 30_000;
 
 /**
  * Standard retry policy for CoinGecko queries.
@@ -15,4 +16,14 @@ export function apiRetry(maxAttempts: number) {
     }
     return failureCount < maxAttempts;
   };
+}
+
+/**
+ * Exponential backoff delay for CoinGecko query retries.
+ * Doubles the wait time on each attempt, capped at 30 seconds.
+ * @param attempt - The current retry attempt index (0-based).
+ * @returns Delay in milliseconds before the next retry.
+ */
+export function apiRetryDelay(attempt: number): number {
+  return Math.min(1_000 * 2 ** attempt, MAX_RETRY_DELAY_MS);
 }
