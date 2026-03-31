@@ -98,14 +98,57 @@ This project follows **Atomic Design** principles:
 
 ```
 src/
-├── ui/ # Primitive, reusable UI components (Badge, Button, Skeleton, SparklineChart)
-├── components/ # Composed components (CryptoName, PriceChange, SearchInput, SortableHeader)
-├── modules/ # Feature-level components with business logic (MarketTable, AssetDrawer)
-├── context/ # React Context for global client state (SelectedCoinContext)
-├── hooks/ # Custom React Query hooks (useMarketCoins, useCoinDetail, useCoinMarketChart)
-├── api/ # API client functions for CoinGecko
-├── types/ # Shared TypeScript interfaces and types
-├── utils/ # Pure utility functions (formatters)
+├── api/                        # CoinGecko API client, query keys, retry/cache config
+│   ├── coingecko.ts            # fetch functions + ApiError class
+│   ├── queryConfig.ts          # apiRetry + apiRetryDelay helpers
+│   ├── queryKeys.ts            # centralized QUERY_KEYS factory
+│   └── index.ts
+├── domain/                     # Business logic isolated from UI and infrastructure
+│   └── coin/                   # Coin-specific domain module
+│       ├── types.ts            # ICoin, ICoinDetail, IPriceChartPoint
+│       ├── transformer.ts      # Raw API → domain mappers (mapCoin, mapCoinDetail, mapPriceChartPoints)
+│       ├── utils.ts            # Domain-scoped formatters (formatCoinPrice, formatMarketCap, formatCoinDate)
+│       └── index.ts
+│   ├── columns.tsx             # COIN_COLUMNS table column definitions
+│   └── index.ts
+├── hooks/                      # All custom hooks — data fetching, table behaviour, orchestration
+│   ├── useMarketController.ts  # Page-level orchestrator — composes all sub-hooks, owns selected coin state
+│   ├── useMarketCoins.ts       # React Query hook for top-20 market list
+│   ├── useCoinDetail.ts        # React Query hook for single coin detail
+│   ├── useCoinMarketChart.ts   # React Query hook for 7-day price chart
+│   ├── usePrefetchCoinDetail.ts# Prefetch callback for hover-triggered cache warming
+│   ├── useAssetDrawer.ts       # Composes detail + chart queries into drawer state
+│   ├── useDrawerBehavior.ts    # UI-only drawer behaviour (focus trap, keyboard, description toggle)
+│   ├── useTable.ts             # Table orchestrator — composes useSorting + useFiltering
+│   ├── useSorting.ts           # Column sort state machine
+│   ├── useFiltering.ts         # Search filter reducer
+│   └── index.ts
+├── modules/                    # Feature-level organisms — purely presentational, no hook calls
+│   ├── MarketTable.tsx         # Market overview table (receives table + state props)
+│   ├── AssetDrawer.tsx         # Asset detail side drawer (receives drawer prop)
+│   └── index.ts
+├── components/                 # Composed reusable components (molecules)
+│   ├── CryptoName.tsx          # Coin icon + name + symbol cell
+│   ├── PriceChange.tsx         # 24h change badge with null fallback
+│   ├── SearchInput.tsx         # Accessible search field
+│   └── index.ts
+├── ui/                         # Primitive, stateless UI atoms
+│   ├── Badge.tsx               # Color-coded percentage badge
+│   ├── Button.tsx              # Multi-variant button (primary / ghost / link) with forwardRef
+│   ├── Skeleton.tsx            # Loading placeholder
+│   ├── SparklineChart.tsx      # Inline 7-day sparkline
+│   ├── table/                  # Headless generic table primitives
+│   │   ├── Table.tsx           # Schema-driven, fully headless table
+│   │   ├── SortButton.tsx      # Column sort toggle button
+│   │   ├── SortIcon.tsx        # Sort direction indicator icon
+│   │   ├── types.ts            # IColumn, ISortState
+│   │   └── index.ts
+│   └── index.ts
+├── types/
+│   └── index.ts                # Raw CoinGecko API response types (all fields nullable)
+├── utils/
+│   ├── formatters.ts           # Pure formatting utilities (currency, market cap, date, text)
+│   └── index.ts
 ├── App.tsx
 └── main.tsx
 ```
