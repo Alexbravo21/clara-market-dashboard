@@ -9,6 +9,7 @@ export interface ISortState<TKey extends string> {
 
 /**
  * Defines how a single column in a generic table is rendered and behaved.
+ * `render` is optional — when omitted, the raw value at `key` is rendered as a string.
  */
 export interface IColumn<T> {
   key: string;
@@ -16,5 +17,5 @@ export interface IColumn<T> {
   sortable?: boolean;
   headerClassName?: string;
   cellClassName?: string;
-  render: (row: T) => ReactNode;
+  render?: (row: T) => ReactNode;
 }

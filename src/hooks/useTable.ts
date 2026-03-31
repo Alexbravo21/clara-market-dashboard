@@ -3,13 +3,22 @@ import { useFiltering } from './useFiltering';
 import { useSorting } from './useSorting';
 
 type FilterPredicate<T> = (row: T, query: string) => boolean;
+type SortComparator<T> = (a: T, b: T, field: string, direction: SortDirection) => number;
+
+interface ITableSortingConfig<T> {
+  initialField: string;
+  initialDirection?: SortDirection;
+  comparator?: SortComparator<T>;
+}
+
+interface ITableFilteringConfig<T> {
+  predicate: FilterPredicate<T>;
+}
 
 interface IUseTableOptions<T> {
   data: T[];
-  initialSortField: string;
-  initialSortDirection?: SortDirection;
-  filterPredicate: FilterPredicate<T>;
-  comparator?: (a: T, b: T, field: string, direction: SortDirection) => number;
+  sorting?: ITableSortingConfig<T>;
+  filtering?: ITableFilteringConfig<T>;
 }
 
 interface IUseTableResult<T> {
@@ -20,22 +29,19 @@ interface IUseTableResult<T> {
   setFilterQuery: (query: string) => void;
 }
 
+const passThroughPredicate = () => true;
+const passThroughComparator = () => 0;
+
 /**
- * Composes useSorting and useFiltering to provide a unified table state hook.
- * Filtering is applied before sorting. UI-agnostic and fully generic.
- * @param options - Table configuration including data, sort field, filter predicate, and optional comparator.
- * @returns Processed data array plus sort/filter state and their respective handlers.
+ * Single orchestrator for all table behaviour: filtering then sorting.
+ * Internally composes useFiltering and useSorting. UI-agnostic and fully generic.
+ * @param options - Table configuration with raw data and optional sorting and filtering configs.
+ * @returns Final processed data array plus unified sort/filter state and handlers.
  */
-export function useTable<T>({
-  data,
-  initialSortField,
-  initialSortDirection,
-  filterPredicate,
-  comparator,
-}: IUseTableOptions<T>): IUseTableResult<T> {
+export function useTable<T>({ data, sorting, filtering }: IUseTableOptions<T>): IUseTableResult<T> {
   const { filteredData, filterQuery, setFilterQuery } = useFiltering({
     data,
-    predicate: filterPredicate,
+    predicate: filtering?.predicate ?? passThroughPredicate,
   });
 
   const {
@@ -44,9 +50,9 @@ export function useTable<T>({
     handleSort,
   } = useSorting({
     data: filteredData,
-    initialField: initialSortField,
-    initialDirection: initialSortDirection,
-    comparator,
+    initialField: sorting?.initialField ?? '',
+    initialDirection: sorting?.initialDirection,
+    comparator: sorting?.comparator ?? passThroughComparator,
   });
 
   return { processedData, sortState, filterQuery, handleSort, setFilterQuery };

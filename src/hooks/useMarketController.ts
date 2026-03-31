@@ -23,8 +23,8 @@ export function useMarketController(onSelectCoin: (id: string) => void) {
 
   const { processedData, sortState, filterQuery, handleSort, setFilterQuery } = useTable<ICoin>({
     data: coins,
-    initialSortField: 'rank',
-    filterPredicate: coinFilterPredicate,
+    sorting: { initialField: 'rank' },
+    filtering: { predicate: coinFilterPredicate },
   });
 
   const handleRowClick = (row: ICoin) => {
