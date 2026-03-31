@@ -1,9 +1,9 @@
-import type { ICoinRow } from '../domain';
+import type { ICoin } from '../domain/coin';
 import { ApiError } from '../api';
 import { useMarketCoins } from './useMarketCoins';
 import { useTable } from './useTable';
 
-function coinFilterPredicate(row: ICoinRow, query: string): boolean {
+function coinFilterPredicate(row: ICoin, query: string): boolean {
   const lowerQuery = query.toLowerCase();
   return (
     row.name.toLowerCase().includes(lowerQuery) || row.symbol.toLowerCase().includes(lowerQuery)
@@ -21,13 +21,13 @@ export function useMarketController(onSelectCoin: (id: string) => void) {
 
   const isRateLimit = error instanceof ApiError ? error.isRateLimit : false;
 
-  const { processedData, sortState, filterQuery, handleSort, setFilterQuery } = useTable<ICoinRow>({
+  const { processedData, sortState, filterQuery, handleSort, setFilterQuery } = useTable<ICoin>({
     data: coins,
     initialSortField: 'rank',
     filterPredicate: coinFilterPredicate,
   });
 
-  const handleRowClick = (row: ICoinRow) => {
+  const handleRowClick = (row: ICoin) => {
     onSelectCoin(row.id);
   };
 

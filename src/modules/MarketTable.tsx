@@ -1,6 +1,6 @@
 import { Button, SkeletonTable, Table } from '../ui';
 import { SearchInput } from '../components';
-import type { ICoinRow } from '../domain';
+import type { ICoin } from '../domain/coin';
 import { COIN_COLUMNS } from '../domain';
 import { useMarketController } from '../hooks';
 
@@ -70,7 +70,7 @@ export function MarketTable({ onSelectCoin }: IMarketTableProps) {
         )}
       </div>
 
-      <Table<ICoinRow>
+      <Table<ICoin>
         data={processedCoins}
         columns={COIN_COLUMNS}
         rowKey={(row) => row.id}

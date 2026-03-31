@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 
 import { apiRetry, fetchCoinDetail, QUERY_KEYS } from '../api';
-import type { ICoinDetailView } from '../domain';
-import { mapCoinDetailToView } from '../domain';
-import type { ICoinDetail } from '../types';
+import type { ICoinDetail } from '../domain/coin';
+import { mapCoinDetail } from '../domain/coin';
+import type { ICoinDetail as ICoinDetailRaw } from '../types';
 
 /**
  * Fetches and caches detailed information for a specific coin by ID.
@@ -12,10 +12,10 @@ import type { ICoinDetail } from '../types';
  * @returns React Query result with ICoinDetailView as the data type.
  */
 export function useCoinDetail(coinId: string | null) {
-  return useQuery<ICoinDetail, Error, ICoinDetailView>({
+  return useQuery<ICoinDetailRaw, Error, ICoinDetail>({
     queryKey: QUERY_KEYS.coinDetail(coinId ?? ''),
     queryFn: () => fetchCoinDetail(coinId!),
-    select: mapCoinDetailToView,
+    select: mapCoinDetail,
     enabled: !!coinId,
     staleTime: 5 * 60_000,
     retry: apiRetry(2),

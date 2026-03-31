@@ -1,14 +1,14 @@
 import { CryptoName, PriceChange } from '../components';
 import { SparklineChart } from '../ui';
 import type { IColumn } from '../ui';
-import { formatCompactUSD, formatUSD } from '../utils';
-import type { ICoinRow } from './models';
+import type { ICoin } from './coin';
+import { formatCoinPrice, formatMarketCap } from './coin';
 
 /**
  * Column definitions for the cryptocurrency market table.
  * Each entry describes how to render and sort a single column of ICoinRow data.
  */
-export const COIN_COLUMNS: IColumn<ICoinRow>[] = [
+export const COIN_COLUMNS: IColumn<ICoin>[] = [
   {
     key: 'rank',
     header: '#',
@@ -29,7 +29,7 @@ export const COIN_COLUMNS: IColumn<ICoinRow>[] = [
     sortable: true,
     headerClassName: 'text-right',
     cellClassName: 'text-right text-sm font-medium text-gray-900 dark:text-gray-100 tabular-nums',
-    render: (row) => formatUSD(row.price),
+    render: (row) => formatCoinPrice(row.price),
   },
   {
     key: 'priceChange24h',
@@ -45,7 +45,7 @@ export const COIN_COLUMNS: IColumn<ICoinRow>[] = [
     sortable: true,
     headerClassName: 'text-right',
     cellClassName: 'text-right text-sm text-gray-700 dark:text-gray-300 tabular-nums',
-    render: (row) => formatCompactUSD(row.marketCap),
+    render: (row) => formatMarketCap(row.marketCap),
   },
   {
     key: 'sparklinePrices',

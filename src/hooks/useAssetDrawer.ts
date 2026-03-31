@@ -1,16 +1,14 @@
 import { ApiError } from '../api';
-import type { ICoinDetailView } from '../domain';
+import type { ICoinDetail, IPriceChartPoint } from '../domain/coin';
+import { mapPriceChartPoints } from '../domain/coin';
 import { useCoinDetail } from './useCoinDetail';
 import { useCoinMarketChart } from './useCoinMarketChart';
 
-export interface IPriceChartPoint {
-  date: string;
-  price: number;
-}
+export type { IPriceChartPoint } from '../domain/coin';
 
 export interface IUseAssetDrawerResult {
   isOpen: boolean;
-  coinDetail: ICoinDetailView | undefined;
+  coinDetail: ICoinDetail | undefined;
   priceChartData: IPriceChartPoint[] | undefined;
   isLoading: boolean;
   hasError: boolean;
@@ -44,10 +42,7 @@ export function useAssetDrawer({ selectedCoinId }: IUseAssetDrawerOptions): IUse
     refetch: refetchChart,
   } = useCoinMarketChart(selectedCoinId);
 
-  const priceChartData = chartData?.prices.map(([timestamp, price]) => ({
-    date: new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-    price,
-  }));
+  const priceChartData = chartData ? mapPriceChartPoints(chartData) : undefined;
 
   const activeError = detailError ?? chartError;
   const isRateLimit = activeError instanceof ApiError ? activeError.isRateLimit : false;

@@ -10,7 +10,8 @@ import {
 
 import { Button, Skeleton } from '../ui';
 import { useAssetDrawer, useDrawerBehavior } from '../hooks';
-import { formatDate, formatUSD, truncateText } from '../utils';
+import { formatCoinPrice, formatCoinDate } from '../domain';
+import { truncateText } from '../utils';
 
 const DESCRIPTION_LIMIT = 300;
 
@@ -117,7 +118,7 @@ export function AssetDrawer({ selectedCoinId, onClose }: IAssetDrawerProps) {
               <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Current Price</p>
                 <p className="mt-1 text-3xl font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                  {formatUSD(coinDetail.price)}
+                  {formatCoinPrice(coinDetail.price)}
                 </p>
               </div>
 
@@ -125,19 +126,19 @@ export function AssetDrawer({ selectedCoinId, onClose }: IAssetDrawerProps) {
                 <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <p className="text-xs text-gray-500 dark:text-gray-400">All-Time High</p>
                   <p className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                    {formatUSD(coinDetail.allTimeHigh)}
+                    {formatCoinPrice(coinDetail.allTimeHigh)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">
-                    {formatDate(coinDetail.allTimeHighDate)}
+                    {formatCoinDate(coinDetail.allTimeHighDate)}
                   </p>
                 </div>
                 <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <p className="text-xs text-gray-500 dark:text-gray-400">All-Time Low</p>
                   <p className="mt-1 text-sm font-semibold text-red-600 dark:text-red-400 tabular-nums">
-                    {formatUSD(coinDetail.allTimeLow)}
+                    {formatCoinPrice(coinDetail.allTimeLow)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">
-                    {formatDate(coinDetail.allTimeLowDate)}
+                    {formatCoinDate(coinDetail.allTimeLowDate)}
                   </p>
                 </div>
               </div>
@@ -194,7 +195,7 @@ export function AssetDrawer({ selectedCoinId, onClose }: IAssetDrawerProps) {
                       <Tooltip
                         formatter={(value) =>
                           typeof value === 'number'
-                            ? [formatUSD(value), 'Price']
+                            ? [formatCoinPrice(value), 'Price']
                             : [String(value), 'Price']
                         }
                         labelStyle={{ color: '#374151' }}
