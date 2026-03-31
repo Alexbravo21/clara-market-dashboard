@@ -30,7 +30,6 @@ interface IUseTableResult<T> {
 }
 
 const passThroughPredicate = () => true;
-const passThroughComparator = () => 0;
 
 /**
  * Single orchestrator for all table behaviour: filtering then sorting.
@@ -52,7 +51,7 @@ export function useTable<T>({ data, sorting, filtering }: IUseTableOptions<T>): 
     data: filteredData,
     initialField: sorting?.initialField ?? '',
     initialDirection: sorting?.initialDirection,
-    comparator: sorting?.comparator ?? passThroughComparator,
+    comparator: sorting?.comparator,
   });
 
   return { processedData, sortState, filterQuery, handleSort, setFilterQuery };
