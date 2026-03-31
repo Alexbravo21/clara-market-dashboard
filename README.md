@@ -23,39 +23,52 @@ A responsive crypto market dashboard displaying real-time data for the top 20 cr
 | Testing       | Jest + React Testing Library     |
 | Linting       | ESLint (Airbnb-style) + Prettier |
 
+## Technical decisions
+
+I structured the project with a focus on keeping things clean and easy to scale. The idea was to separate responsibilities as much as possible, so UI components are mostly presentational, while logic lives in hooks. One key piece is the generic, headless table component, which is driven by a column schema and doesn’t depend on any specific data shape, making it reusable across different contexts. I also introduced a small domain layer to transform the API data into a consistent shape, so the rest of the app doesn’t depend directly on the API response. For data fetching, I used React Query and made things like caching, retries, and data transformation explicit, so the behavior is predictable. Overall, I tried to keep the code modular and reusable, while making sure external data is handled safely and doesn’t leak complexity into the UI.
+
+## AI usage
+
+I used AI to improve the speed of building this app. I started with a copilot-instructions file with the product requirements and coding guidelines. This along with a prompt created the first iteration of the whole project. Creating an functional MVP.
+Then I started to manually refactor the code from it works to this is maintainable and scalable. Easy to read and with a file structure that makes it easier to find any concern.
+
+While doing this manual refators I still used AI to do some of that labor and mainly to build unit tests that I specified based on how the project was growing.
+
+As you may know now because of the intructions file name I mainly used copilot because I have a premium account but I also used free ChatGPT as an auditor for what I asked Copilot to build. To not only have my human eyes but also use another Agent to find flaws quicker.
+
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+
-- npm 9+
+- Node.js 22.22.2+
+- npm 10.9.7+
 
 ### Installation
 
-\`\`\`bash
-git clone https://github.com/your-username/clara-market-dashboard.git
+```bash
+git clone https://github.com/Alexbravo21/clara-market-dashboard.git
 cd clara-market-dashboard
 npm install
-\`\`\`
+```
 
 ### Development
 
-\`\`\`bash
+```bash
 npm run dev
-\`\`\`
+```
 
 Open [http://localhost:5173](http://localhost:5173) in your browser.
 
 ### Build
 
-\`\`\`bash
+```bash
 npm run build
 npm run preview
-\`\`\`
+```
 
 ### Testing
 
-\`\`\`bash
+```bash
 
 # Run all tests
 
@@ -64,11 +77,11 @@ npm test
 # Run tests with coverage report
 
 npm run test:coverage
-\`\`\`
+```
 
 ### Linting & Formatting
 
-\`\`\`bash
+```bash
 
 # Lint
 
@@ -77,13 +90,13 @@ npm run lint
 # Format source files
 
 npm run format
-\`\`\`
+```
 
 ## Project Structure
 
 This project follows **Atomic Design** principles:
 
-\`\`\`
+```
 src/
 ├── ui/ # Primitive, reusable UI components (Badge, Button, Skeleton, SparklineChart)
 ├── components/ # Composed components (CryptoName, PriceChange, SearchInput, SortableHeader)
@@ -95,7 +108,7 @@ src/
 ├── utils/ # Pure utility functions (formatters)
 ├── App.tsx
 └── main.tsx
-\`\`\`
+```
 
 ## API
 
