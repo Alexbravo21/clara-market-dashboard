@@ -1,42 +1,42 @@
 export interface ISparklineData {
-  price: number[];
+  price?: number[] | null;
 }
 
 export interface ICoinMarket {
-  id: string;
-  symbol: string;
-  name: string;
-  image: string;
-  current_price: number;
-  market_cap: number;
-  market_cap_rank: number;
-  price_change_percentage_24h: number;
-  sparkline_in_7d: ISparklineData;
+  id?: string | null;
+  symbol?: string | null;
+  name?: string | null;
+  image?: string | null;
+  current_price?: number | null;
+  market_cap?: number | null;
+  market_cap_rank?: number | null;
+  price_change_percentage_24h?: number | null;
+  sparkline_in_7d?: ISparklineData | null;
 }
 
 export interface ICoinImage {
-  thumb: string;
-  small: string;
-  large: string;
+  thumb?: string | null;
+  small?: string | null;
+  large?: string | null;
 }
 
 export interface ICoinMarketData {
-  current_price: { usd: number };
-  ath: { usd: number };
-  ath_date: { usd: string };
-  atl: { usd: number };
-  atl_date: { usd: string };
+  current_price?: { usd?: number | null } | null;
+  ath?: { usd?: number | null } | null;
+  ath_date?: { usd?: string | null } | null;
+  atl?: { usd?: number | null } | null;
+  atl_date?: { usd?: string | null } | null;
 }
 
 export interface ICoinDetail {
-  id: string;
-  symbol: string;
-  name: string;
-  image: ICoinImage;
-  description: { en: string };
-  market_data: ICoinMarketData;
+  id?: string | null;
+  symbol?: string | null;
+  name?: string | null;
+  image?: ICoinImage | null;
+  description?: { en?: string | null } | null;
+  market_data?: ICoinMarketData | null;
 }
 
 export interface IMarketChartData {
-  prices: [number, number][];
+  prices?: [number, number][] | null;
 }
