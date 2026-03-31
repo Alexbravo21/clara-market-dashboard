@@ -4,14 +4,21 @@ import type { ICoin } from '../domain/coin';
 import { COIN_COLUMNS } from '../domain';
 import type { ITableControllerState, IPageState } from '../hooks';
 
-const EMPTY_STATE = (
-  <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
-    <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">No results found</p>
-    <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-      Try adjusting your search query.
-    </p>
-  </div>
-);
+function EmptyState({ onResetFilter }: { onResetFilter?: () => void }) {
+  return (
+    <div className="flex flex-col items-center justify-center rounded-lg border border-gray-200 bg-white p-12 text-center dark:border-gray-700 dark:bg-gray-800">
+      <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">No results found</p>
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        Try adjusting your search query.
+      </p>
+      {onResetFilter && (
+        <Button variant="link" className="mt-4" onClick={onResetFilter}>
+          Reset search
+        </Button>
+      )}
+    </div>
+  );
+}
 
 interface IMarketTableProps {
   table: ITableControllerState;
@@ -64,7 +71,11 @@ export function MarketTable({ table, state }: IMarketTableProps) {
         onSort={table.sorting.onSort}
         onRowClick={table.onRowClick}
         ariaRowLabel={(row) => `View details for ${row.name}`}
-        emptyState={EMPTY_STATE}
+        emptyState={
+          <EmptyState
+            onResetFilter={table.filtering.query ? () => table.filtering.onChange('') : undefined}
+          />
+        }
       />
     </div>
   );

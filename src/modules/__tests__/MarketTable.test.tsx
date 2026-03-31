@@ -99,20 +99,42 @@ describe('MarketTable', () => {
   it('filters coins by search query', async () => {
     const user = userEvent.setup();
     const onChange = jest.fn();
-    render(<MarketTable table={makeTable({ filtering: { query: '', onChange } })} state={makeState()} />);
+    render(
+      <MarketTable table={makeTable({ filtering: { query: '', onChange } })} state={makeState()} />,
+    );
     await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
     await user.type(screen.getByRole('searchbox'), 'bitcoin');
     expect(onChange).toHaveBeenCalled();
   });
 
   it('shows empty state when no coins match search', () => {
+    render(<MarketTable table={makeTable({ data: [] })} state={makeState()} />);
+    expect(screen.getByText(/no results found/i)).toBeInTheDocument();
+  });
+
+  it('shows a reset search button when query is non-empty and no results match', async () => {
+    const onChange = jest.fn();
+    const user = userEvent.setup();
     render(
       <MarketTable
-        table={makeTable({ data: [] })}
+        table={makeTable({ data: [], filtering: { query: 'xyz', onChange } })}
         state={makeState()}
       />,
     );
-    expect(screen.getByText(/no results found/i)).toBeInTheDocument();
+    const resetButton = screen.getByRole('button', { name: /reset search/i });
+    expect(resetButton).toBeInTheDocument();
+    await user.click(resetButton);
+    expect(onChange).toHaveBeenCalledWith('');
+  });
+
+  it('does not show reset search button when query is empty', () => {
+    render(
+      <MarketTable
+        table={makeTable({ data: [], filtering: { query: '', onChange: jest.fn() } })}
+        state={makeState()}
+      />,
+    );
+    expect(screen.queryByRole('button', { name: /reset search/i })).not.toBeInTheDocument();
   });
 
   it('calls onRowClick with the correct row when a row is clicked', async () => {
@@ -121,9 +143,7 @@ describe('MarketTable', () => {
     render(<MarketTable table={makeTable({ onRowClick })} state={makeState()} />);
     await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
     await user.click(screen.getByText('Bitcoin'));
-    expect(onRowClick).toHaveBeenCalledWith(
-      expect.objectContaining({ id: 'bitcoin' }),
-    );
+    expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'bitcoin' }));
   });
 });
 

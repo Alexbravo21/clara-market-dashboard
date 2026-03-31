@@ -26,8 +26,8 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveClass('bg-blue-600');
   });
 
-  it('applies secondary variant classes', () => {
-    render(<Button variant="secondary">Secondary</Button>);
-    expect(screen.getByRole('button')).toHaveClass('bg-gray-100');
+  it('applies ghost variant classes', () => {
+    render(<Button variant="ghost">Ghost</Button>);
+    expect(screen.getByRole('button')).toHaveClass('hover:bg-gray-100');
   });
 });

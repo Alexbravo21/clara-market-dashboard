@@ -61,11 +61,11 @@ export function AssetDrawer({ drawer }: IAssetDrawerProps) {
       >
         <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Asset Details</h2>
-          <button
+          <Button
             ref={closeButtonRef}
-            type="button"
+            variant="ghost"
+            className="p-1.5"
             onClick={close}
-            className="rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:hover:bg-gray-800"
             aria-label="Close asset details"
           >
             <svg
@@ -80,7 +80,7 @@ export function AssetDrawer({ drawer }: IAssetDrawerProps) {
             >
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
-          </button>
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
@@ -155,13 +155,9 @@ export function AssetDrawer({ drawer }: IAssetDrawerProps) {
                       : truncateText(coinDetail.description, DESCRIPTION_LIMIT)}
                   </p>
                   {coinDetail.description.length > DESCRIPTION_LIMIT && (
-                    <button
-                      type="button"
-                      onClick={onToggleDescription}
-                      className="mt-1 text-sm font-medium text-blue-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-blue-400"
-                    >
+                    <Button variant="link" className="mt-1" onClick={onToggleDescription}>
                       {isDescriptionExpanded ? 'Read less' : 'Read more'}
-                    </button>
+                    </Button>
                   )}
                 </div>
               )}
