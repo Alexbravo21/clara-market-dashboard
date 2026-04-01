@@ -1,5 +1,6 @@
 import { ApiError } from '../api';
 import type { ICoinDetail, IPriceChartPoint } from '../domain/coin';
+import type { Currency } from '../domain/currency';
 import { useCoinDetail } from './useCoinDetail';
 import { useCoinMarketChart } from './useCoinMarketChart';
 
@@ -17,14 +18,15 @@ export interface IUseAssetDrawerResult {
 
 interface IUseAssetDrawerOptions {
   selectedCoinId: string | null;
+  currency: Currency;
 }
 
 /**
  * Manages data fetching and state for the asset detail drawer.
- * @param options - The currently selected coin ID.
+ * @param options - The currently selected coin ID and active currency.
  * @returns Drawer open state, coin detail, chart data, loading/error flags, and a refetch callback.
  */
-export function useAssetDrawer({ selectedCoinId }: IUseAssetDrawerOptions): IUseAssetDrawerResult {
+export function useAssetDrawer({ selectedCoinId, currency }: IUseAssetDrawerOptions): IUseAssetDrawerResult {
   const isOpen = !!selectedCoinId;
 
   const {
@@ -32,14 +34,14 @@ export function useAssetDrawer({ selectedCoinId }: IUseAssetDrawerOptions): IUse
     isLoading: isDetailLoading,
     error: detailError,
     refetch: refetchDetail,
-  } = useCoinDetail(selectedCoinId);
+  } = useCoinDetail(selectedCoinId, currency);
 
   const {
     data: priceChartData = [],
     isLoading: isChartLoading,
     error: chartError,
     refetch: refetchChart,
-  } = useCoinMarketChart(selectedCoinId);
+  } = useCoinMarketChart(selectedCoinId, currency);
 
   const activeError = detailError ?? chartError;
   const isRateLimit = activeError instanceof ApiError ? activeError.isRateLimit : false;

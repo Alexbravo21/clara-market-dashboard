@@ -25,7 +25,7 @@ describe('CoinGecko API fetch functions', () => {
     it('calls the correct endpoint with required query params', async () => {
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(200, []));
 
-      await fetchMarketCoins();
+      await fetchMarketCoins('usd');
 
       const calledUrl = (globalThis.fetch as jest.Mock).mock.calls[0][0] as string;
       expect(calledUrl).toContain(`${BASE_URL}/coins/markets`);
@@ -39,7 +39,7 @@ describe('CoinGecko API fetch functions', () => {
       const payload: Partial<ICoinMarket>[] = [{ id: 'bitcoin', name: 'Bitcoin' }];
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(200, payload));
 
-      const result = await fetchMarketCoins();
+      const result = await fetchMarketCoins('usd');
 
       expect(result).toEqual(payload);
     });
@@ -47,7 +47,7 @@ describe('CoinGecko API fetch functions', () => {
     it('throws ApiError with isRateLimit=true on a 429 response', async () => {
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(429, {}));
 
-      const error = await fetchMarketCoins().catch((e: unknown) => e);
+      const error = await fetchMarketCoins('usd').catch((e: unknown) => e);
       expect(error).toBeInstanceOf(ApiError);
       expect((error as ApiError).isRateLimit).toBe(true);
       expect((error as ApiError).statusCode).toBe(429);
@@ -56,7 +56,7 @@ describe('CoinGecko API fetch functions', () => {
     it('throws ApiError with isRateLimit=false on a 500 response', async () => {
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(500, {}));
 
-      const error = await fetchMarketCoins().catch((e: unknown) => e);
+      const error = await fetchMarketCoins('usd').catch((e: unknown) => e);
       expect(error).toBeInstanceOf(ApiError);
       expect((error as ApiError).isRateLimit).toBe(false);
       expect((error as ApiError).statusCode).toBe(500);
@@ -65,7 +65,7 @@ describe('CoinGecko API fetch functions', () => {
     it('throws ApiError on any non-ok status', async () => {
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(404, {}));
 
-      await expect(fetchMarketCoins()).rejects.toBeInstanceOf(ApiError);
+      await expect(fetchMarketCoins('usd')).rejects.toBeInstanceOf(ApiError);
     });
   });
 
@@ -122,7 +122,7 @@ describe('CoinGecko API fetch functions', () => {
       const payload: IMarketChartData = { prices: [[1_700_000_000_000, 50000]] };
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(200, payload));
 
-      await fetchCoinMarketChart('bitcoin');
+      await fetchCoinMarketChart('bitcoin', 'usd');
 
       const calledUrl = (globalThis.fetch as jest.Mock).mock.calls[0][0] as string;
       expect(calledUrl).toContain(`${BASE_URL}/coins/bitcoin/market_chart`);
@@ -134,7 +134,7 @@ describe('CoinGecko API fetch functions', () => {
       const payload: IMarketChartData = { prices: [[1_700_000_000_000, 42000]] };
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(200, payload));
 
-      const result = await fetchCoinMarketChart('bitcoin');
+      const result = await fetchCoinMarketChart('bitcoin', 'usd');
 
       expect(result).toEqual(payload);
     });
@@ -142,7 +142,7 @@ describe('CoinGecko API fetch functions', () => {
     it('throws ApiError with isRateLimit=true on a 429 response', async () => {
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(429, {}));
 
-      const error = await fetchCoinMarketChart('bitcoin').catch((e: unknown) => e);
+      const error = await fetchCoinMarketChart('bitcoin', 'usd').catch((e: unknown) => e);
       expect(error).toBeInstanceOf(ApiError);
       expect((error as ApiError).isRateLimit).toBe(true);
     });
@@ -150,7 +150,7 @@ describe('CoinGecko API fetch functions', () => {
     it('throws ApiError on a 500 response', async () => {
       (globalThis.fetch as jest.Mock).mockResolvedValueOnce(mockResponse(500, {}));
 
-      await expect(fetchCoinMarketChart('bitcoin')).rejects.toBeInstanceOf(ApiError);
+      await expect(fetchCoinMarketChart('bitcoin', 'usd')).rejects.toBeInstanceOf(ApiError);
     });
   });
 });

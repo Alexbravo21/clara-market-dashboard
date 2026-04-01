@@ -25,6 +25,51 @@ const DATE_FORMATTER = new Intl.DateTimeFormat('en-US', {
   day: 'numeric',
 });
 
+// Pre-built formatters keyed by ISO currency code (uppercase).
+const PRICE_FORMATTERS = new Map<string, Intl.NumberFormat>([
+  ['USD', USD_FORMATTER],
+  [
+    'EUR',
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }),
+  ],
+  [
+    'MXN',
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'MXN',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }),
+  ],
+]);
+
+const COMPACT_PRICE_FORMATTERS = new Map<string, Intl.NumberFormat>([
+  ['USD', COMPACT_USD_FORMATTER],
+  [
+    'EUR',
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'EUR',
+      notation: 'compact',
+      maximumFractionDigits: 2,
+    }),
+  ],
+  [
+    'MXN',
+    new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'MXN',
+      notation: 'compact',
+      maximumFractionDigits: 2,
+    }),
+  ],
+]);
+
 /**
  * Formats a number as a USD currency string (e.g. $1,234.56).
  * @param value - The numeric value to format.
@@ -50,6 +95,30 @@ export function formatCompactUSD(value: number): string {
  */
 export function formatPercent(value: number): string {
   return PERCENT_FORMATTER.format(value / 100);
+}
+
+/**
+ * Formats a number as a currency string for the given ISO currency code.
+ * Falls back to USD if the currency code is not pre-built.
+ * @param value - The numeric value.
+ * @param currency - ISO 4217 currency code (e.g. 'usd', 'eur', 'mxn').
+ * @returns Formatted currency string.
+ */
+export function formatCurrency(value: number, currency: string): string {
+  const formatter = PRICE_FORMATTERS.get(currency.toUpperCase()) ?? USD_FORMATTER;
+  return formatter.format(value);
+}
+
+/**
+ * Formats a large number as a compact currency string (e.g. €1.2T, MX$340B).
+ * Falls back to compact USD if the currency code is not pre-built.
+ * @param value - The numeric value.
+ * @param currency - ISO 4217 currency code (e.g. 'usd', 'eur', 'mxn').
+ * @returns Compact currency string.
+ */
+export function formatCompactCurrency(value: number, currency: string): string {
+  const formatter = COMPACT_PRICE_FORMATTERS.get(currency.toUpperCase()) ?? COMPACT_USD_FORMATTER;
+  return formatter.format(value);
 }
 
 /**

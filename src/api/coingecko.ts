@@ -39,11 +39,12 @@ async function apiFetch<T>(endpoint: string): Promise<T> {
 
 /**
  * Fetches the top 20 cryptocurrencies by market cap including 7-day sparkline data.
+ * @param currency - The vs_currency to use (e.g. 'usd', 'eur', 'mxn').
  * @returns Array of raw market coin objects from the CoinGecko API.
  */
-export async function fetchMarketCoins(): Promise<ICoinMarket[]> {
+export async function fetchMarketCoins(currency: string): Promise<ICoinMarket[]> {
   const params = new URLSearchParams({
-    vs_currency: 'usd',
+    vs_currency: currency,
     order: 'market_cap_desc',
     per_page: '20',
     page: '1',
@@ -72,11 +73,12 @@ export async function fetchCoinDetail(id: string): Promise<ICoinDetail> {
 /**
  * Fetches the 7-day price history chart data for a specific cryptocurrency.
  * @param id - The CoinGecko coin ID (e.g. 'bitcoin').
+ * @param currency - The vs_currency to use (e.g. 'usd', 'eur', 'mxn').
  * @returns Market chart object containing an array of [timestamp, price] pairs.
  */
-export async function fetchCoinMarketChart(id: string): Promise<IMarketChartData> {
+export async function fetchCoinMarketChart(id: string, currency: string): Promise<IMarketChartData> {
   const params = new URLSearchParams({
-    vs_currency: 'usd',
+    vs_currency: currency,
     days: '7',
   });
 

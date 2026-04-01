@@ -4,6 +4,7 @@ export { useCoinMarketChart } from './useCoinMarketChart';
 export { usePrefetchCoinDetail } from './usePrefetchCoinDetail';
 export { useTable } from './useTable';
 export { useMarketController } from './useMarketController';
+export { useFavorites } from './useFavorites';
 export type {
   IMarketControllerResult,
   ITableControllerState,
@@ -11,6 +12,7 @@ export type {
   ITableFilteringState,
   IDrawerControllerState,
   IPageState,
+  ICurrencyControlState,
 } from './useMarketController';
 export { useAssetDrawer } from './useAssetDrawer';
 export { useDrawerBehavior } from './useDrawerBehavior';

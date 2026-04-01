@@ -1,8 +1,8 @@
 import { Button, SkeletonTable, Table } from '../ui';
-import { SearchInput } from '../components';
+import { CurrencySelect, SearchInput } from '../components';
 import type { ICoin } from '../domain/coin';
-import { COIN_COLUMNS } from '../domain';
-import type { ITableControllerState, IPageState } from '../hooks';
+import { createCoinColumns } from '../domain';
+import type { ITableControllerState, IPageState, ICurrencyControlState } from '../hooks';
 
 function EmptyState({ onResetFilter }: { onResetFilter?: () => void }) {
   return (
@@ -23,13 +23,14 @@ function EmptyState({ onResetFilter }: { onResetFilter?: () => void }) {
 interface IMarketTableProps {
   table: ITableControllerState;
   state: IPageState;
+  currencyControl: ICurrencyControlState;
 }
 
 /**
  * The main market overview table organism. Purely presentational — receives all
  * data and handlers from the controller via props.
  */
-export function MarketTable({ table, state }: IMarketTableProps) {
+export function MarketTable({ table, state, currencyControl }: IMarketTableProps) {
   if (state.isLoading) return <SkeletonTable rows={10} columns={6} />;
 
   if (state.hasError) {
@@ -56,16 +57,19 @@ export function MarketTable({ table, state }: IMarketTableProps) {
           onChange={table.filtering.onChange}
           placeholder="Search by name or symbol..."
         />
-        {state.isFetching && !state.isLoading && (
-          <span className="text-xs text-gray-400 dark:text-gray-500" aria-live="polite">
-            Refreshing...
-          </span>
-        )}
+        <div className="flex items-center gap-4">
+          <CurrencySelect currencyControl={currencyControl} />
+          {state.isFetching && !state.isLoading && (
+            <span className="text-xs text-gray-400 dark:text-gray-500" aria-live="polite">
+              Refreshing...
+            </span>
+          )}
+        </div>
       </div>
 
       <Table<ICoin>
         data={table.data}
-        columns={COIN_COLUMNS}
+        columns={createCoinColumns(table.toggleFavorite, table.isFavorite, table.currency)}
         rowKey={(row) => row.id}
         sortState={table.sorting.state}
         onSort={table.sorting.onSort}

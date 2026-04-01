@@ -56,20 +56,21 @@ export function mapCoin(raw: ICoinMarket): ICoin {
  * Transforms a raw CoinGecko detail API response into the clean ICoinDetail domain model.
  * All nested paths are accessed with optional chaining and safe-parsed.
  * @param raw - Raw coin detail object from the CoinGecko API.
+ * @param currency - The ISO currency code to pick from market_data (e.g. 'usd', 'eur').
  * @returns Flat ICoinDetail domain object.
  */
-export function mapCoinDetail(raw: ICoinDetailRaw): ICoinDetail {
+export function mapCoinDetail(raw: ICoinDetailRaw, currency = 'usd'): ICoinDetail {
   const marketData = raw.market_data;
   return {
     id: safeString(raw.id),
     name: safeString(raw.name, 'Unknown'),
     symbol: safeString(raw.symbol),
     imageUrl: safeString(raw.image?.large),
-    price: safeNumber(marketData?.current_price?.usd),
-    allTimeHigh: safeNumber(marketData?.ath?.usd),
-    allTimeHighDate: safeString(marketData?.ath_date?.usd),
-    allTimeLow: safeNumber(marketData?.atl?.usd),
-    allTimeLowDate: safeString(marketData?.atl_date?.usd),
+    price: safeNumber(marketData?.current_price?.[currency]),
+    allTimeHigh: safeNumber(marketData?.ath?.[currency]),
+    allTimeHighDate: safeString(marketData?.ath_date?.[currency]),
+    allTimeLow: safeNumber(marketData?.atl?.[currency]),
+    allTimeLowDate: safeString(marketData?.atl_date?.[currency]),
     description: stripHtml(raw.description?.en),
   };
 }

@@ -26,7 +26,7 @@ interface IAssetDrawerProps {
  * Composes {@link useDrawerBehavior} for UI-only behaviour (focus, keyboard, description toggle).
  */
 export function AssetDrawer({ drawer }: IAssetDrawerProps) {
-  const { isOpen, coinDetail, priceChartData, isLoading, hasError, isRateLimit, refetch, close } =
+  const { isOpen, coinDetail, priceChartData, isLoading, hasError, isRateLimit, refetch, close, currency } =
     drawer;
   const { isDescriptionExpanded, closeButtonRef, toggleDescription } = useDrawerBehavior({
     isOpen,
@@ -119,7 +119,7 @@ export function AssetDrawer({ drawer }: IAssetDrawerProps) {
               <div className="rounded-lg bg-gray-50 p-4 dark:bg-gray-800">
                 <p className="text-sm text-gray-500 dark:text-gray-400">Current Price</p>
                 <p className="mt-1 text-3xl font-bold tabular-nums text-gray-900 dark:text-gray-100">
-                  {formatCoinPrice(coinDetail.price)}
+                  {formatCoinPrice(coinDetail.price, currency)}
                 </p>
               </div>
 
@@ -127,7 +127,7 @@ export function AssetDrawer({ drawer }: IAssetDrawerProps) {
                 <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <p className="text-xs text-gray-500 dark:text-gray-400">All-Time High</p>
                   <p className="mt-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400 tabular-nums">
-                    {formatCoinPrice(coinDetail.allTimeHigh)}
+                    {formatCoinPrice(coinDetail.allTimeHigh, currency)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">
                     {formatCoinDate(coinDetail.allTimeHighDate)}
@@ -136,7 +136,7 @@ export function AssetDrawer({ drawer }: IAssetDrawerProps) {
                 <div className="rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <p className="text-xs text-gray-500 dark:text-gray-400">All-Time Low</p>
                   <p className="mt-1 text-sm font-semibold text-red-600 dark:text-red-400 tabular-nums">
-                    {formatCoinPrice(coinDetail.allTimeLow)}
+                    {formatCoinPrice(coinDetail.allTimeLow, currency)}
                   </p>
                   <p className="text-xs text-gray-400 dark:text-gray-500">
                     {formatCoinDate(coinDetail.allTimeLowDate)}
@@ -185,14 +185,14 @@ export function AssetDrawer({ drawer }: IAssetDrawerProps) {
                         tickLine={false}
                         axisLine={false}
                         tickFormatter={(value: number) =>
-                          value >= 1000 ? `$${(value / 1000).toFixed(1)}k` : `$${value.toFixed(2)}`
+                          value >= 1000 ? `${(value / 1000).toFixed(1)}k` : value.toFixed(2)
                         }
                         width={72}
                       />
                       <Tooltip
                         formatter={(value) =>
                           typeof value === 'number'
-                            ? [formatCoinPrice(value), 'Price']
+                            ? [formatCoinPrice(value, currency), 'Price']
                             : [String(value), 'Price']
                         }
                         labelStyle={{ color: '#374151' }}

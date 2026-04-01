@@ -5,10 +5,11 @@
  */
 export const QUERY_KEYS = {
   /**
-   * Key for the top-20 market coins list.
-   * @example queryClient.invalidateQueries({ queryKey: QUERY_KEYS.marketCoins() })
+   * Key for the top-20 market coins list, scoped by currency.
+   * @param currency - The vs_currency (e.g. 'usd').
+   * @example queryClient.invalidateQueries({ queryKey: QUERY_KEYS.marketCoins('usd') })
    */
-  marketCoins: () => ['coins', 'market'] as const,
+  marketCoins: (currency: string) => ['coins', 'market', currency] as const,
 
   /**
    * Key for a single coin's detail data.
@@ -17,8 +18,9 @@ export const QUERY_KEYS = {
   coinDetail: (id: string) => ['coins', 'detail', id] as const,
 
   /**
-   * Key for a single coin's 7-day price chart data.
+   * Key for a single coin's 7-day price chart data, scoped by currency.
    * @param id - The CoinGecko coin ID.
+   * @param currency - The vs_currency (e.g. 'usd').
    */
-  coinMarketChart: (id: string) => ['coins', 'chart', id] as const,
+  coinMarketChart: (id: string, currency: string) => ['coins', 'chart', id, currency] as const,
 } as const;

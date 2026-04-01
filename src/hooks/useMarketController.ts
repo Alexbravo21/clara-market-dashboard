@@ -1,11 +1,14 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import type { ISortState } from '../ui';
 import type { ICoin, ICoinDetail, IPriceChartPoint } from '../domain/coin';
+import type { Currency } from '../domain/currency';
+import { DEFAULT_CURRENCY } from '../domain/currency';
 import { ApiError } from '../api';
 import { useMarketCoins } from './useMarketCoins';
 import { useTable } from './useTable';
 import { useAssetDrawer } from './useAssetDrawer';
+import { useFavorites } from './useFavorites';
 // import { usePrefetchCoinDetail } from './usePrefetchCoinDetail';
 
 function coinFilterPredicate(row: ICoin, query: string): boolean {
@@ -31,6 +34,9 @@ export interface ITableControllerState {
   filtering: ITableFilteringState;
   onRowClick: (row: ICoin) => void;
   // onRowHover: (row: ICoin) => void;
+  toggleFavorite: (id: string) => void;
+  isFavorite: (id: string) => boolean;
+  currency: Currency;
 }
 
 export interface IDrawerControllerState {
@@ -43,6 +49,7 @@ export interface IDrawerControllerState {
   open: (id: string) => void;
   close: () => void;
   refetch: () => void;
+  currency: Currency;
 }
 
 export interface IPageState {
@@ -53,10 +60,16 @@ export interface IPageState {
   refetch: () => void;
 }
 
+export interface ICurrencyControlState {
+  currency: Currency;
+  onChange: (currency: Currency) => void;
+}
+
 export interface IMarketControllerResult {
   table: ITableControllerState;
   drawer: IDrawerControllerState;
   state: IPageState;
+  currencyControl: ICurrencyControlState;
 }
 
 /**
@@ -67,16 +80,30 @@ export interface IMarketControllerResult {
  */
 export function useMarketController(): IMarketControllerResult {
   const [selectedCoinId, setSelectedCoinId] = useState<string | null>(null);
+  const [currency, setCurrency] = useState<Currency>(DEFAULT_CURRENCY);
+  const { favoriteIds, toggleFavorite, isFavorite } = useFavorites();
 
-  const { data: coins = [], isLoading, isFetching, error, refetch } = useMarketCoins();
+  const { data: coins = [], isLoading, isFetching, error, refetch } = useMarketCoins(currency);
   const isRateLimit = error instanceof ApiError ? error.isRateLimit : false;
   // const prefetchCoinDetail = usePrefetchCoinDetail();
 
-  const { processedData, sortState, filterQuery, handleSort, setFilterQuery } = useTable<ICoin>({
+  const {
+    processedData: sortedFilteredData,
+    sortState,
+    filterQuery,
+    handleSort,
+    setFilterQuery,
+  } = useTable<ICoin>({
     data: coins,
     sorting: { initialField: 'rank' },
     filtering: { predicate: coinFilterPredicate },
   });
+
+  const processedData = useMemo(() => {
+    const favorites = sortedFilteredData.filter((coin) => favoriteIds.has(coin.id));
+    const rest = sortedFilteredData.filter((coin) => !favoriteIds.has(coin.id));
+    return [...favorites, ...rest];
+  }, [sortedFilteredData, favoriteIds]);
 
   const {
     isOpen,
@@ -86,7 +113,7 @@ export function useMarketController(): IMarketControllerResult {
     hasError: drawerHasError,
     isRateLimit: drawerIsRateLimit,
     refetch: refetchDrawer,
-  } = useAssetDrawer({ selectedCoinId });
+  } = useAssetDrawer({ selectedCoinId, currency });
 
   return {
     table: {
@@ -95,6 +122,9 @@ export function useMarketController(): IMarketControllerResult {
       filtering: { query: filterQuery, onChange: setFilterQuery },
       onRowClick: (row: ICoin) => setSelectedCoinId(row.id),
       // onRowHover: (row: ICoin) => prefetchCoinDetail(row.id),
+      toggleFavorite,
+      isFavorite,
+      currency,
     },
     drawer: {
       isOpen,
@@ -106,6 +136,7 @@ export function useMarketController(): IMarketControllerResult {
       open: (id: string) => setSelectedCoinId(id),
       close: () => setSelectedCoinId(null),
       refetch: refetchDrawer,
+      currency,
     },
     state: {
       isLoading,
@@ -113,6 +144,10 @@ export function useMarketController(): IMarketControllerResult {
       hasError: !!error,
       isRateLimit,
       refetch,
+    },
+    currencyControl: {
+      currency,
+      onChange: setCurrency,
     },
   };
 }

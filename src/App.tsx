@@ -38,7 +38,7 @@ function App() {
             Top 20 cryptocurrencies by market cap. Click any row for details.
           </p>
         </div>
-        <MarketTable table={controller.table} state={controller.state} />
+        <MarketTable table={controller.table} state={controller.state} currencyControl={controller.currencyControl} />
       </main>
 
       <AssetDrawer drawer={controller.drawer} />

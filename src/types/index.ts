@@ -21,11 +21,11 @@ export interface ICoinImage {
 }
 
 export interface ICoinMarketData {
-  current_price?: { usd?: number | null } | null;
-  ath?: { usd?: number | null } | null;
-  ath_date?: { usd?: string | null } | null;
-  atl?: { usd?: number | null } | null;
-  atl_date?: { usd?: string | null } | null;
+  current_price?: Record<string, number | null> | null;
+  ath?: Record<string, number | null> | null;
+  ath_date?: Record<string, string | null> | null;
+  atl?: Record<string, number | null> | null;
+  atl_date?: Record<string, string | null> | null;
 }
 
 export interface ICoinDetail {

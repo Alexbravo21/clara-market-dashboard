@@ -3,7 +3,7 @@ import userEvent from '@testing-library/user-event';
 
 import { ApiError } from '../../api';
 import { MarketTable } from '../MarketTable';
-import type { ITableControllerState, IPageState } from '../../hooks';
+import type { ITableControllerState, IPageState, ICurrencyControlState } from '../../hooks';
 import type { ICoin } from '../../domain/coin';
 
 const MOCK_COINS: ICoin[] = [
@@ -38,8 +38,17 @@ function makeTable(overrides: Partial<ITableControllerState> = {}): ITableContro
     filtering: { query: '', onChange: jest.fn() },
     onRowClick: jest.fn(),
     // onRowHover: jest.fn(),
+    toggleFavorite: jest.fn(),
+    isFavorite: jest.fn().mockReturnValue(false),
+    currency: 'usd',
     ...overrides,
   };
+}
+
+function makeCurrencyControl(
+  overrides: Partial<ICurrencyControlState> = {},
+): ICurrencyControlState {
+  return { currency: 'usd', onChange: jest.fn(), ...overrides };
 }
 
 function makeState(overrides: Partial<IPageState> = {}): IPageState {
@@ -55,12 +64,12 @@ function makeState(overrides: Partial<IPageState> = {}): IPageState {
 
 describe('MarketTable', () => {
   it('shows a skeleton loader while fetching', () => {
-    render(<MarketTable table={makeTable({ data: [] })} state={makeState({ isLoading: true })} />);
+    render(<MarketTable table={makeTable({ data: [] })} state={makeState({ isLoading: true })} currencyControl={makeCurrencyControl()} />);
     expect(screen.getByRole('status', { name: /loading/i })).toBeInTheDocument();
   });
 
   it('renders coin rows after successful fetch', async () => {
-    render(<MarketTable table={makeTable()} state={makeState()} />);
+    render(<MarketTable table={makeTable()} state={makeState()} currencyControl={makeCurrencyControl()} />);
     await waitFor(() => {
       expect(screen.getByText('Bitcoin')).toBeInTheDocument();
       expect(screen.getByText('Ethereum')).toBeInTheDocument();
@@ -68,7 +77,7 @@ describe('MarketTable', () => {
   });
 
   it('shows an error message when fetch fails', () => {
-    render(<MarketTable table={makeTable({ data: [] })} state={makeState({ hasError: true })} />);
+    render(<MarketTable table={makeTable({ data: [] })} state={makeState({ hasError: true })} currencyControl={makeCurrencyControl()} />);
     expect(screen.getByText(/failed to load/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /retry/i })).toBeInTheDocument();
   });
@@ -78,6 +87,7 @@ describe('MarketTable', () => {
       <MarketTable
         table={makeTable({ data: [] })}
         state={makeState({ hasError: true, isRateLimit: true })}
+        currencyControl={makeCurrencyControl()}
       />,
     );
     expect(screen.getAllByText(/rate limit/i).length).toBeGreaterThan(0);
@@ -91,6 +101,7 @@ describe('MarketTable', () => {
       <MarketTable
         table={makeTable({ data: [] })}
         state={makeState({ hasError: true, refetch })}
+        currencyControl={makeCurrencyControl()}
       />,
     );
     await user.click(screen.getByRole('button', { name: /retry/i }));
@@ -101,7 +112,7 @@ describe('MarketTable', () => {
     const user = userEvent.setup();
     const onChange = jest.fn();
     render(
-      <MarketTable table={makeTable({ filtering: { query: '', onChange } })} state={makeState()} />,
+      <MarketTable table={makeTable({ filtering: { query: '', onChange } })} state={makeState()} currencyControl={makeCurrencyControl()} />,
     );
     await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
     await user.type(screen.getByRole('searchbox'), 'bitcoin');
@@ -109,7 +120,7 @@ describe('MarketTable', () => {
   });
 
   it('shows empty state when no coins match search', () => {
-    render(<MarketTable table={makeTable({ data: [] })} state={makeState()} />);
+    render(<MarketTable table={makeTable({ data: [] })} state={makeState()} currencyControl={makeCurrencyControl()} />);
     expect(screen.getByText(/no results found/i)).toBeInTheDocument();
   });
 
@@ -120,6 +131,7 @@ describe('MarketTable', () => {
       <MarketTable
         table={makeTable({ data: [], filtering: { query: 'xyz', onChange } })}
         state={makeState()}
+        currencyControl={makeCurrencyControl()}
       />,
     );
     const resetButton = screen.getByRole('button', { name: /reset search/i });
@@ -133,6 +145,7 @@ describe('MarketTable', () => {
       <MarketTable
         table={makeTable({ data: [], filtering: { query: '', onChange: jest.fn() } })}
         state={makeState()}
+        currencyControl={makeCurrencyControl()}
       />,
     );
     expect(screen.queryByRole('button', { name: /reset search/i })).not.toBeInTheDocument();
@@ -141,7 +154,7 @@ describe('MarketTable', () => {
   it('calls onRowClick with the correct row when a row is clicked', async () => {
     const onRowClick = jest.fn();
     const user = userEvent.setup();
-    render(<MarketTable table={makeTable({ onRowClick })} state={makeState()} />);
+    render(<MarketTable table={makeTable({ onRowClick })} state={makeState()} currencyControl={makeCurrencyControl()} />);
     await waitFor(() => expect(screen.getByText('Bitcoin')).toBeInTheDocument());
     await user.click(screen.getByText('Bitcoin'));
     expect(onRowClick).toHaveBeenCalledWith(expect.objectContaining({ id: 'bitcoin' }));
